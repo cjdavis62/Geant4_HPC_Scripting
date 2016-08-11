@@ -45,11 +45,14 @@ config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
 config.read('qshields.cfg')
 
+# Get general options
+Local_Script_Dir = config.get('general_options', 'Local_Script_Dir')
+Local_Storage_Dir = config.get('general_options', 'Local_Storage_Dir')
+
 # Get options for qshields
 Source = config.get('qshields_options', 'Source')
 Source_Location = config.get('qshields_options', 'Source_Location')
-Total_Number_Of_Events =int(config.getfloat('qshields_options', 'Total_Number_Of_Events'))
-Local_Output_Dir = config.get('qshields_options', 'Local_Output_Dir')
+Total_Number_Of_Events = int(config.getfloat('qshields_options', 'Total_Number_Of_Events'))
 Other_qshields_Parameters = config.get('qshields_options', 'Other_qshields_Parameters')
 qshields_Location = config.get('qshields_options', 'qshields_Location')
 Simulation_Name = config.get('qshields_options', 'Simulation_Name')
