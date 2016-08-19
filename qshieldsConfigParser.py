@@ -73,6 +73,7 @@ User_Email = config.get('queue_options', 'User_Email')
 
 # Get options for g4cuore
 g4cuore_Location = config.get('g4cuore_options', 'g4cuore_Location')
+g4cuore_Output_Dir = config.get('g4cuore_options', 'g4cuore_Output_Dir')
 Input_File_List = config.get('g4cuore_options', 'Input_File_List')
 Input_File_List_Size = config.get('g4cuore_options', 'Input_File_List_Size')
 Output_File = config.get('g4cuore_options', 'Output_File')
