@@ -32,6 +32,7 @@ import os
 import math
 import datetime
 import random
+import time
 
 def Random_start():
     return random.randint(1, 100000)
@@ -122,22 +123,45 @@ if (testing):
 
 #### Generate scripts #####
 
+# start with blank slate
+os.system("clear")
+
 # Create Directories as needed
-os.system("mkdir -p %s" %(Local_Output_Dir))
-os.system("mkdir -p %s" %(Root_Output_Dir))
-os.system("mkdir -p %s" %(Log_File_Dir))
-os.system("mkdir -p %s/g4cuore" %(Local_Output_Dir))
+if not(os.path.isdir(Local_Script_Dir)):
+    print("Creating directory %s" %(Local_Script_Dir))
+    os.system("mkdir -p %s" %(Local_Script_Dir))
+else:
+    print("Directory %s exists, continuing" %(Local_Script_Dir))
+if not(os.path.isdir(Local_Storage_Dir)):
+    print("Creating directory %s" %(Local_Storage_Dir))
+    os.system("mkdir -p %s" %(Local_Storage_Dir))
+else:
+    print("Directory %s exists, continuing" %(Local_Storage_Dir))
+if not(os.path.isdir(Root_Output_Dir)):
+    print("Creating directory %s" %(Root_Output_Dir))
+    os.system("mkdir -p %s" %(Root_Output_Dir))
+else:
+    print("Directory %s exists, continuing" %(Root_Output_Dir))
+if not(os.path.isdir(Log_File_Dir)):
+    print("Creating directory %s" %(Log_File_Dir))
+    os.system("mkdir -p %s" %(Log_File_Dir))
+else:
+    print("Directory %s exists, continuing" %(Log_File_Dir))
+if not(os.path.isdir("%s/g4cuore" %(Local_Script_Dir))):
+    print("Creating directory %s/g4cuore" %(Local_Script_Dir))
+    os.system("mkdir -p %s/g4cuore" %(Local_Script_Dir))
+else:
+    print("Directory %s/g4cuore exists, continuing" %(Local_Script_Dir))
 
 # Check if output locations are empty
 Do_qshields = True
 if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)): 
-    print("***** WARNING *****")
+    print("!!!!! WARNING !!!!!")
     print("One or both of Root_Output_Dir or Log_File_Dir are not empty.")
     print("Directories need to be empty to generate qshields pbs scripts.")
-    print("Will continue with other options.")
-    print("*** END WARNING ***")
+    print("Will continue with other options. Empty directories to run qshields!")
+    print("!!! END WARNING !!!")
     Do_qshields = False
-
 if Do_qshields:
     # Calculate how many events to put in each job and how many left over
     Number_Of_Events_Per_Job = math.floor(Total_Number_Of_Events / Number_Of_Jobs) + 1 # subtract 1 when counter reaches Events_Leftover
@@ -151,7 +175,7 @@ if Do_qshields:
 
     # The command to run
     Qshields_Command ="{qshields_Location} {Source} {Source_Location} -N $Events {Other_qshields_Parameters} -o'r'{Root_Output_Dir}/{Simulation_Name}_$taskID.root -i $Random_Seed".format(qshields_Location=qshields_Location, Source=Source, Source_Location=Source_Location, Other_qshields_Parameters=Other_qshields_Parameters, Root_Output_Dir=Root_Output_Dir, Simulation_Name=Simulation_Name)
-    os.system("clear")
+    time.sleep(3)
     print("*"*60)
     print("Generating qshields Command")
     print("The total number of events you are generating is: %s" %(Total_Number_Of_Events))
@@ -161,7 +185,7 @@ if Do_qshields:
     # Generate script for PBS Scheduler
     if Batch_Scheduler == "PBS":
 
-        qsub_file = open("%s/%s_%s.pbs" %(Local_Output_Dir, Job_Name, Simulation_Name), "w")
+        qsub_file = open("%s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, Simulation_Name), "w")
     
         qsub_file.write("#PBS -N %s\n" %(Job_Name))
         qsub_file.write("#PBS -S /bin/bash\n")
@@ -185,11 +209,14 @@ if Do_qshields:
         qsub_file.write("%s\n" %(Qshields_Command))
 
         ##### Talk to the user ######
+        time.sleep(3)
         print("*"*60)
         print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job))
-        print("The %s jobs are located in %s/\n" %(Batch_Scheduler, Local_Output_Dir))
-        print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs\n" %(Local_Output_Dir, Job_Name, Simulation_Name))
+        print("The %s jobs will be output at %s/\n" %(Batch_Scheduler, Local_Storage_Dir))
+        print("The scripts can be run from %s\n" %(Local_Script_Dir))
+        print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs\n" %(Local_Script_Dir, Job_Name, Simulation_Name))
         print("*"*60)
+
 ##### Options for Saving to DB #####
 
 if Send_Output_To_DB:
@@ -198,8 +225,8 @@ if Send_Output_To_DB:
 
 #### Write the g4cuore file ####
 
-g4cuore_file = open("%s/g4cuore/g4cuore.sh" %(Local_Output_Dir), "w")
-g4cuore_input_file_list_name = "%s/g4cuore/g4cuore_input_root_file_list.sh" %(Local_Output_Dir)
+g4cuore_file = open("%s/g4cuore/g4cuore.sh" %(Local_Script_Dir), "w")
+g4cuore_input_file_list_name = "%s/g4cuore/g4cuore_input_root_file_list.sh" %(Local_Script_Dir)
 
 # The g4cuore command
 g4cuore_Command = "{g4cuore_Location} -o 'r'{Output_File} -i 'l'{g4cuore_input_file_list_name} -d {Coincidence_Time} -D {Integration_Time} -e {Excluded_Channels} -E {Dead_Time} -t {Pile_Up} -G {Multiplicity_Distance_Cut} -r {Event_Rate} -T {Threshold} -R {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location, Output_File = Output_File, g4cuore_input_file_list_name = g4cuore_input_file_list_name, Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
@@ -214,9 +241,10 @@ for i in range (0, Number_Of_Jobs):
     g4cuore_input_file_list.write("%s/%s_%s \n" %(Root_Output_Dir, Simulation_Name, i+1))
 
 # Talk to the user
+time.sleep(3)
 print("*" * 60)
 print("The g4cuore command you are generating is:\n%s" %(g4cuore_Command))
-print("The g4cuore command has been written to %s/g4cuore." %(Local_Output_Dir))
+print("The g4cuore command has been written to %s/g4cuore." %(Local_Script_Dir))
 print("The g4cuore command will use the files located in %s." %(Root_Output_Dir))
 print("You can run the g4cuore command with: \n\t >%s" %(g4cuore_input_file_list_name))
 print("*" * 60)
