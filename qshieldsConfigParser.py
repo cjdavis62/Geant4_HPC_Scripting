@@ -233,7 +233,7 @@ g4cuore_file = open("%s/g4cuore/g4cuore.sh" %(Local_Script_Dir), "w")
 g4cuore_input_file_list_name = "%s/g4cuore/g4cuore_input_root_file_list.sh" %(Local_Script_Dir)
 
 # The g4cuore command
-g4cuore_Command = "{g4cuore_Location} -o 'r'{Output_File} -i 'l'{g4cuore_input_file_list_name} -d {Coincidence_Time} -D {Integration_Time} -e {Excluded_Channels} -E {Dead_Time} -t {Pile_Up} -G {Multiplicity_Distance_Cut} -r {Event_Rate} -T {Threshold} -R {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location, Output_File = Output_File, g4cuore_input_file_list_name = g4cuore_input_file_list_name, Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
+g4cuore_Command = "{g4cuore_Location} -o'r'{Output_File} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), Output_File = Output_File.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
 
 g4cuore_file.write("%s \n" %(g4cuore_Command))
 
@@ -242,7 +242,7 @@ g4cuore_file.write("%s \n" %(g4cuore_Command))
 g4cuore_input_file_list = open("%s" %(g4cuore_input_file_list_name), "w")
 
 for i in range (0, Number_Of_Jobs):
-    g4cuore_input_file_list.write("%s/%s_%s \n" %(Root_Output_Dir, Simulation_Name, i+1))
+    g4cuore_input_file_list.write("%s/%s_%s \n" %(Root_Output_Dir, Simulation_Name, 1))
 
 # Talk to the user
 time.sleep(3)
