@@ -112,13 +112,17 @@ Date_utc = datetime.datetime.utcnow()
 # Config File Read Testing
 if (testing):
     print(Source)
-    print(Local_Output_Dir)
+    print(Local_Script_Dir)
     print(Walltime)
     print(Send_Output_To_DB)
     print(Log_File_Dir)
     print(Total_Number_Of_Events)
     print(Number_Of_Jobs)
     print("%s/%s/%s" %(Date_utc.day, Date_utc.month, Date_utc.year))
+    print(Input_File_List)
+    print(Input_File_List_Size)
+    print(Output_File)
+    exit()
 # End Testing
 
 #### Generate scripts #####
