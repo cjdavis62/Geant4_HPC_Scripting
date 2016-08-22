@@ -242,7 +242,7 @@ g4cuore_file.write("%s \n" %(g4cuore_Command))
 g4cuore_input_file_list = open("%s" %(g4cuore_input_file_list_name), "w")
 
 for i in range (0, Number_Of_Jobs):
-    g4cuore_input_file_list.write("%s/%s_%s \n" %(Root_Output_Dir, Simulation_Name, 1))
+    g4cuore_input_file_list.write("%s/%s_%s.root \n" %(Root_Output_Dir, Simulation_Name, i))
 
 # Talk to the user
 time.sleep(3)
