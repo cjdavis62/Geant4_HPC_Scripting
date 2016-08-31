@@ -33,6 +33,7 @@ import math
 import datetime
 import random
 import time
+from pymongo import MongoClient
 
 def Random_start():
     return random.randint(1, 100000)
@@ -96,7 +97,7 @@ DB_Username = config.get('database_options', 'DB_Username')
 Cluster_Used = config.get('database_options', 'Cluster_Used')
 User_Name = config.get('database_options', 'User_Name')
 Git_Commit_Hash = config.get('database_options', 'Git_Commit_Hash')
-Git_Tag_Version = config.getboolean('database_options', 'Git_Tag_Version')
+Git_Is_Tag_Version = config.getboolean('database_options', 'Git_Is_Tag_Version')
 Git_Tag_Name = config.get('database_options', 'Git_Tag_Name')
 qshields_Storage_Location = config.get('database_options', 'qshields_Storage_Location')
 Comments = config.get('database_options', 'Comments')
@@ -107,7 +108,7 @@ Comments = config.get('database_options', 'Comments')
 ##### Non-Config File Options #####
 
 Date_utc = datetime.datetime.utcnow()
-
+All_g4cuore_Commands = str.join(' ',(Coincidence_Time, Integration_Time, Excluded_Channels, Dead_Time, Pile_Up, Multiplicity_Distance_Cut, Event_Rate, Threshold, Resolution, Other_g4cuore_Parameters))
 
 # Config File Read Testing
 if (testing):
@@ -122,7 +123,7 @@ if (testing):
     print(Input_File_List)
     print(Input_File_List_Size)
     print(Output_File)
-    exit()
+    exit(0)
 # End Testing
 
 #### Generate scripts #####
@@ -216,9 +217,9 @@ if Do_qshields:
         time.sleep(3)
         print("*"*60)
         print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job))
-        print("The %s jobs will be output at %s/\n" %(Batch_Scheduler, Local_Storage_Dir))
-        print("The scripts can be run from %s\n" %(Local_Script_Dir))
-        print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs\n" %(Local_Script_Dir, Job_Name, Simulation_Name))
+        print("The %s jobs will be output at %s/" %(Batch_Scheduler, Local_Storage_Dir))
+        print("The scripts can be run from %s" %(Local_Script_Dir))
+        print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, Simulation_Name))
         print("*"*60)
 
 ##### Options for Saving to DB #####
@@ -252,3 +253,52 @@ print("The g4cuore command has been written to %s/g4cuore." %(Local_Script_Dir))
 print("The g4cuore command will use the files located in %s." %(Root_Output_Dir))
 print("You can run the g4cuore command with: \n\t >%s" %(g4cuore_input_file_list_name))
 print("*" * 60)
+
+
+#### Write the mongodb connection file ####
+
+if(Send_Output_To_DB):
+    # Connect to DB and open the database and collection
+    print("Test1")
+    #client = MongoClient('%s' %(DB_Location), 217017)
+    client = MongoClient()
+    print("Test2")
+    db = client.CUORE_MC_database
+    collection = db.CUORE_MC_database
+
+    # Create a post to add to the database
+    DB_Post = db.CUORE_MC_list
+
+    print(type(Source_Location))
+
+    # if tag version upload this 
+    if(Git_Is_Tag_Version):
+        post = {"MC Author": User_Name,
+                "Cluster Generated From": Cluster_Used,
+                "Git Tag": Git_Tag_Name,
+                "qshields Storage Location": qshields_Storage_Location,
+                "Source": Source,
+                "Source Location": Source_Location,
+                "Number of Events": Total_Number_Of_Events,
+                "Other qshields Parameters": Other_qshields_Parameters,
+                "G4cuore Options": All_g4cuore_Commands,
+                "Comments": Comments}
+
+    # if not tag version upload this
+    else:
+        post = {"MC Author": User_Name,
+                "Cluster Generated From": Cluster_Used,
+                "qshields Git Commit Hash": Git_Commit_Hash,
+                "qshields Storage Location": qshields_Storage_Location,
+                "Source": Source,
+                "Source Location": Source_Location,
+                "Number of Events": Total_Number_Of_Events,
+                "Other qshields Parameters": Other_qshields_Parameters,
+                "G4cuore Options": All_g4cuore_Commands,
+                "Comments": Comments}
+
+    # Insert into the collection
+    post_id = DB_Post.insert_one(post).inserted_id
+    print(post_id)
+    print(db.collection_names(include_system_collections=False))
+    print(DB_Post.find_one({"_id":post_id}))
