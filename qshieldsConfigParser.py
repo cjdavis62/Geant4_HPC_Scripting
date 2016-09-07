@@ -235,7 +235,9 @@ print("*" * 60)
 if(Send_Output_To_DB):
     # Connect to DB and open the database and collection
     #client = MongoClient('%s' %(DB_Location), 217017)
-    client = MongoClient()
+    #client = MongoClient()
+    client = MongoClient('mongodb://admin:th3cats3y3@localhost:27017/')
+  #  client.the_database.authenticate('admin', 'th3catsy3y3', source='admin')
     db = client.CUORE_MC_database
     collection = db.CUORE_MC_database
 
@@ -275,6 +277,6 @@ if(Send_Output_To_DB):
     # Insert into the collection
     post_id = DB_Post.insert_one(post).inserted_id
 
-#    print(post_id)
-#    print(db.collection_names(include_system_collections=False))
-#    print(DB_Post.find_one({"_id":post_id}))
+    print(post_id)
+    print(db.collection_names(include_system_collections=False))
+    print(DB_Post.find_one({"_id":post_id}))
