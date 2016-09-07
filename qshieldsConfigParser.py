@@ -18,9 +18,6 @@
 
 # After the config file is read, the program generates a script that can be submitted to the scheduler as a job array
 
-#testing = True
-testing = False
-
 import sys
 if sys.version_info[0] != 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 2):
     print("Sorry, the code requires Python 3.2 or greater")
@@ -37,9 +34,6 @@ from pymongo import MongoClient
 
 def Random_start():
     return random.randint(1, 100000)
-
-def Write_qsub():
-    pass
 
 ### Get values from the config file ###
 
@@ -110,22 +104,6 @@ Comments = config.get('database_options', 'Comments')
 Date_utc = datetime.datetime.utcnow()
 All_g4cuore_Commands = str.join(' ',(Coincidence_Time, Integration_Time, Excluded_Channels, Dead_Time, Pile_Up, Multiplicity_Distance_Cut, Event_Rate, Threshold, Resolution, Other_g4cuore_Parameters))
 
-# Config File Read Testing
-if (testing):
-    print(Source)
-    print(Local_Script_Dir)
-    print(Walltime)
-    print(Send_Output_To_DB)
-    print(Log_File_Dir)
-    print(Total_Number_Of_Events)
-    print(Number_Of_Jobs)
-    print("%s/%s/%s" %(Date_utc.day, Date_utc.month, Date_utc.year))
-    print(Input_File_List)
-    print(Input_File_List_Size)
-    print(Output_File)
-    exit(0)
-# End Testing
-
 #### Generate scripts #####
 
 # start with blank slate
@@ -174,9 +152,6 @@ if Do_qshields:
 
     # Get random seed to start with. All jobs with have this + job_number
     Rand_Seed_Start = Random_start()
-    if (testing):
-        print(Number_Of_Events_Per_Job)
-        print(Events_Leftover)
 
     # The command to run
     Qshields_Command ="{qshields_Location} {Source} {Source_Location} -N $Events {Other_qshields_Parameters} -o'r'{Root_Output_Dir}/{Simulation_Name}_$taskID.root -i $Random_Seed".format(qshields_Location=qshields_Location, Source=Source, Source_Location=Source_Location, Other_qshields_Parameters=Other_qshields_Parameters, Root_Output_Dir=Root_Output_Dir, Simulation_Name=Simulation_Name)
@@ -259,27 +234,17 @@ print("*" * 60)
 
 if(Send_Output_To_DB):
     # Connect to DB and open the database and collection
-    print("Test1")
     #client = MongoClient('%s' %(DB_Location), 217017)
     client = MongoClient()
-    print("Test2")
     db = client.CUORE_MC_database
     collection = db.CUORE_MC_database
 
     # Create a post to add to the database
     DB_Post = db.CUORE_MC_list
 
-
     # Edit the qshields parameters to make them look nicer in the database
-    
-    print(Source_Location)
-    print(Other_qshields_Parameters)
-
     Source_Location = Source_Location.replace("\\","")
     Other_qshields_Parameters = Other_qshields_Parameters.replace("\\","")
-
-    print(Source_Location)
-    print(Other_qshields_Parameters)
 
     # if tag version upload this 
     if(Git_Is_Tag_Version):
@@ -309,6 +274,7 @@ if(Send_Output_To_DB):
 
     # Insert into the collection
     post_id = DB_Post.insert_one(post).inserted_id
-    print(post_id)
-    print(db.collection_names(include_system_collections=False))
-    print(DB_Post.find_one({"_id":post_id}))
+
+#    print(post_id)
+#    print(db.collection_names(include_system_collections=False))
+#    print(DB_Post.find_one({"_id":post_id}))
