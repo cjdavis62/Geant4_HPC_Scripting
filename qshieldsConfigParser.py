@@ -269,7 +269,17 @@ if(Send_Output_To_DB):
     # Create a post to add to the database
     DB_Post = db.CUORE_MC_list
 
-    print(type(Source_Location))
+
+    # Edit the qshields parameters to make them look nicer in the database
+    
+    print(Source_Location)
+    print(Other_qshields_Parameters)
+
+    Source_Location = Source_Location.replace("\\","")
+    Other_qshields_Parameters = Other_qshields_Parameters.replace("\\","")
+
+    print(Source_Location)
+    print(Other_qshields_Parameters)
 
     # if tag version upload this 
     if(Git_Is_Tag_Version):
