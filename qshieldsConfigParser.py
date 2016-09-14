@@ -45,6 +45,9 @@ config.read('qshields.cfg')
 # Get general options
 Local_Script_Dir = config.get('general_options', 'Local_Script_Dir')
 Local_Storage_Dir = config.get('general_options', 'Local_Storage_Dir')
+Write_qshields = config.getboolean('general_options', 'Write_qshields')
+Write_g4cuore = config.getboolean('general_options', 'Write_g4cuore')
+Write_to_DB = config.getboolean('general_options', 'Write_to_DB')
 
 # Get options for qshields
 Source = config.get('qshields_options', 'Source')
@@ -86,11 +89,11 @@ Resolution = config.get('g4cuore_options', 'Resolution')
 Other_g4cuore_Parameters = config.get('g4cuore_options', 'Other_g4cuore_Parameters')
 
 # Get options for DB upload
-Send_Output_To_DB = config.getboolean('database_options', 'Send_Output_To_DB')
 DB_Location = config.get('database_options', 'DB_Location')
 DB_Username = config.get('database_options', 'DB_Username')
 Cluster_Used = config.get('database_options', 'Cluster_Used')
 User_Name = config.get('database_options', 'User_Name')
+Date_Generated = config.get('database_options', 'Date_Generated')
 Git_Commit_Hash = config.get('database_options', 'Git_Commit_Hash')
 Git_Is_Tag_Version = config.getboolean('database_options', 'Git_Is_Tag_Version')
 Git_Tag_Name = config.get('database_options', 'Git_Tag_Name')
@@ -138,15 +141,17 @@ else:
     print("Directory %s/g4cuore exists, continuing" %(Local_Script_Dir))
 
 # Check if output locations are empty
-Do_qshields = True
 if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)): 
     print("!!!!! WARNING !!!!!")
     print("One or both of Root_Output_Dir or Log_File_Dir are not empty.")
     print("Directories need to be empty to generate qshields pbs scripts.")
     print("Will continue with other options. Empty directories to run qshields!")
     print("!!! END WARNING !!!")
-    Do_qshields = False
-if Do_qshields:
+    Write_qshields = False
+
+if not (Write_qshields):
+    print("Skipping qshields")
+if (Write_qshields):
     # Calculate how many events to put in each job and how many left over
     Number_Of_Events_Per_Job = math.floor(Total_Number_Of_Events / Number_Of_Jobs) + 1 # subtract 1 when counter reaches Events_Leftover
     Events_Leftover = Total_Number_Of_Events % Number_Of_Jobs
@@ -200,40 +205,42 @@ if Do_qshields:
 
 ##### Options for Saving to DB #####
 
-if Send_Output_To_DB:
-    pass
-
 
 #### Write the g4cuore file ####
+if not (Write_g4cuore):
+    print ("Skipping g4cuore...")
+if (Write_g4cuore):
 
-g4cuore_file = open("%s/g4cuore/g4cuore.sh" %(Local_Script_Dir), "w")
-g4cuore_input_file_list_name = "%s/g4cuore/g4cuore_input_root_file_list.sh" %(Local_Script_Dir)
+    g4cuore_file = open("%s/g4cuore/g4cuore.sh" %(Local_Script_Dir), "w")
+    g4cuore_input_file_list_name = "%s/g4cuore/g4cuore_input_root_file_list.sh" %(Local_Script_Dir)
 
-# The g4cuore command
-g4cuore_Command = "{g4cuore_Location} -o'r'{Output_File} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), Output_File = Output_File.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
+    # The g4cuore command
+    g4cuore_Command = "{g4cuore_Location} -o'r'{Output_File} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), Output_File = Output_File.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
 
-g4cuore_file.write("%s \n" %(g4cuore_Command))
+    g4cuore_file.write("%s \n" %(g4cuore_Command))
+    
+    # Write the file that contains the names of the .root files
+    
+    g4cuore_input_file_list = open("%s" %(g4cuore_input_file_list_name), "w")
 
-# Write the file that contains the names of the .root files
+    for i in range (0, Number_Of_Jobs):
+        g4cuore_input_file_list.write("%s/%s_%s.root \n" %(Root_Output_Dir, Simulation_Name, i))
 
-g4cuore_input_file_list = open("%s" %(g4cuore_input_file_list_name), "w")
-
-for i in range (0, Number_Of_Jobs):
-    g4cuore_input_file_list.write("%s/%s_%s.root \n" %(Root_Output_Dir, Simulation_Name, i))
-
-# Talk to the user
-time.sleep(3)
-print("*" * 60)
-print("The g4cuore command you are generating is:\n%s" %(g4cuore_Command))
-print("The g4cuore command has been written to %s/g4cuore." %(Local_Script_Dir))
-print("The g4cuore command will use the files located in %s." %(Root_Output_Dir))
-print("You can run the g4cuore command with: \n\t >%s" %(g4cuore_input_file_list_name))
-print("*" * 60)
-
+    # Talk to the user
+    time.sleep(3)
+    print("*" * 60)
+    print("The g4cuore command you are generating is:\n%s" %(g4cuore_Command))
+    print("The g4cuore command has been written to %s/g4cuore." %(Local_Script_Dir))
+    print("The g4cuore command will use the files located in %s." %(Root_Output_Dir))
+    print("You can run the g4cuore command with: \n\t >%s" %(g4cuore_input_file_list_name))
+    print("*" * 60)
+    
 
 #### Write the mongodb connection file ####
+if not (Write_to_DB):
+    print("Skipping DB entry...")
 
-if(Send_Output_To_DB):
+if (Write_to_DB):
     # Connect to DB and open the database and collection
     #client = MongoClient('%s' %(DB_Location), 217017)
     #client = MongoClient()
