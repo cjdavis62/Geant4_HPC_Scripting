@@ -31,6 +31,7 @@ import datetime
 import random
 import time
 from pymongo import MongoClient
+import getpass
 
 def Random_start():
     return random.randint(1, 100000)
@@ -191,7 +192,7 @@ if Do_qshields:
         ##### Talk to the user ######
         time.sleep(3)
         print("*"*60)
-        print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job))
+        print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job - 1))
         print("The %s jobs will be output at %s/" %(Batch_Scheduler, Local_Storage_Dir))
         print("The scripts can be run from %s" %(Local_Script_Dir))
         print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, Simulation_Name))
@@ -236,7 +237,10 @@ if(Send_Output_To_DB):
     # Connect to DB and open the database and collection
     #client = MongoClient('%s' %(DB_Location), 217017)
     #client = MongoClient()
-    client = MongoClient('mongodb://admin:th3cats3y3@localhost:27017/')
+
+    password = getpass.getpass('Password for DB ("Pl*****"): ')
+    client = MongoClient('mongodb://admin:%s@localhost:27017/' %(password))
+    del password
   #  client.the_database.authenticate('admin', 'th3catsy3y3', source='admin')
     db = client.CUORE_MC_database
     collection = db.CUORE_MC_database
@@ -277,6 +281,6 @@ if(Send_Output_To_DB):
     # Insert into the collection
     post_id = DB_Post.insert_one(post).inserted_id
 
-    print(post_id)
-    print(db.collection_names(include_system_collections=False))
-    print(DB_Post.find_one({"_id":post_id}))
+#    print(post_id)
+#    print(db.collection_names(include_system_collections=False))
+#    print(DB_Post.find_one({"_id":post_id}))
