@@ -262,6 +262,7 @@ if (Write_to_DB):
     # if tag version upload this 
     if(Git_Is_Tag_Version):
         post = {"MC Author": User_Name,
+                "Date Generated": Date_Generated,
                 "Cluster Generated From": Cluster_Used,
                 "Git Tag": Git_Tag_Name,
                 "qshields Storage Location": qshields_Storage_Location,
@@ -275,6 +276,7 @@ if (Write_to_DB):
     # if not tag version upload this
     else:
         post = {"MC Author": User_Name,
+                "Date Generated": Date_Generated,
                 "Cluster Generated From": Cluster_Used,
                 "qshields Git Commit Hash": Git_Commit_Hash,
                 "qshields Storage Location": qshields_Storage_Location,
@@ -288,6 +290,6 @@ if (Write_to_DB):
     # Insert into the collection
     post_id = DB_Post.insert_one(post).inserted_id
 
-#    print(post_id)
-#    print(db.collection_names(include_system_collections=False))
-#    print(DB_Post.find_one({"_id":post_id}))
+    print(post_id)
+    print(db.collection_names(include_system_collections=False))
+    print(DB_Post.find_one({"_id":post_id}))
