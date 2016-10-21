@@ -151,6 +151,7 @@ if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)):
 
 if not (Write_qshields):
     print("Skipping qshields")
+    print("*"*60)
 if (Write_qshields):
     # Calculate how many events to put in each job and how many left over
     Number_Of_Events_Per_Job = math.floor(Total_Number_Of_Events / Number_Of_Jobs) + 1 # subtract 1 when counter reaches Events_Leftover
@@ -208,7 +209,8 @@ if (Write_qshields):
 
 #### Write the g4cuore file ####
 if not (Write_g4cuore):
-    print ("Skipping g4cuore...")
+    print("Skipping g4cuore...")
+    print("*"*60)
 if (Write_g4cuore):
 
     g4cuore_file = open("%s/g4cuore/g4cuore.sh" %(Local_Script_Dir), "w")
@@ -239,16 +241,15 @@ if (Write_g4cuore):
 #### Write the mongodb connection file ####
 if not (Write_to_DB):
     print("Skipping DB entry...")
-
+    print("*"*60)
 if (Write_to_DB):
     # Connect to DB and open the database and collection
     #client = MongoClient('%s' %(DB_Location), 217017)
     #client = MongoClient()
 
     password = getpass.getpass('Password for DB ("Pl*****"): ')
-    client = MongoClient('mongodb://admin:%s@localhost:27017/' %(password))
+    client = MongoClient('mongodb://CUORE:%s@localhost:27012/' %(password))
     del password
-  #  client.the_database.authenticate('admin', 'th3catsy3y3', source='admin')
     db = client.CUORE_MC_database
     collection = db.CUORE_MC_database
 
@@ -291,5 +292,5 @@ if (Write_to_DB):
     post_id = DB_Post.insert_one(post).inserted_id
 
     print(post_id)
-    print(db.collection_names(include_system_collections=False))
+    #print(db.collection_names(include_system_collections=False))
     print(DB_Post.find_one({"_id":post_id}))
