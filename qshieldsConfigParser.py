@@ -57,7 +57,7 @@ Source_Location = config.get('qshields_options', 'Source_Location')
 Total_Number_Of_Events = int(config.getfloat('qshields_options', 'Total_Number_Of_Events'))
 Other_qshields_Parameters = config.get('qshields_options', 'Other_qshields_Parameters')
 qshields_Location = config.get('qshields_options', 'qshields_Location')
-Simulation_Name = config.get('qshields_options', 'Simulation_Name')
+qshields_Simulation_Name = config.get('qshields_options', 'qshields_Simulation_Name')
 
 # Get options for Batch Scheduler
 Batch_Scheduler = config.get('queue_options', 'Batch_Scheduler')
@@ -76,10 +76,10 @@ User_Email = config.get('queue_options', 'User_Email')
 # Get options for g4cuore
 g4cuore_Location = config.get('g4cuore_options', 'g4cuore_Location')
 g4cuore_Script_Dir = config.get('g4cuore_options', 'g4cuore_Script_Dir')
-g4cuore_Storage_Dir = config.get('g4cuore_options', 'g4cuore_Output_Dir')
+g4cuore_Storage_Dir = config.get('g4cuore_options', 'g4cuore_Storage_Dir')
 Input_File_List = config.get('g4cuore_options', 'Input_File_List')
 Input_File_List_Size = config.get('g4cuore_options', 'Input_File_List_Size')
-Output_File = config.get('g4cuore_options', 'Output_File')
+g4cuore_Output_File_Name = config.get('g4cuore_options', 'g4cuore_Output_File_Name')
 Coincidence_Time = config.get('g4cuore_options', 'Coincidence_Time')
 Integration_Time = config.get('g4cuore_options', 'Integration_Time')
 Excluded_Channels = config.get('g4cuore_options', 'Excluded_Channels')
@@ -154,6 +154,10 @@ if not(os.path.isdir("%s" %(g4cuore_Storage_Dir))):
     os.system("mkdir -p %s" %(g4cuore_Storage_Dir))
 else: 
     print("Directory %s exists, continuing" %(g4cuore_Storage_Dir))
+if not(os.path.isdir("%s" %(DB_Script_Dir))):
+    os.system("mkdir -p %s" %(DB_Script_Dir))
+else:
+    print("Directory %s exists, continuing" %(DB_Script_Dir))
 
 
 # Check if output locations are empty
@@ -177,7 +181,7 @@ if (Write_qshields):
     Rand_Seed_Start = Random_start()
 
     # The command to run
-    Qshields_Command ="{qshields_Location} {Source} {Source_Location} -N $Events {Other_qshields_Parameters} -o'r'{Root_Output_Dir}/{Simulation_Name}_$taskID.root -i $Random_Seed".format(qshields_Location=qshields_Location, Source=Source, Source_Location=Source_Location, Other_qshields_Parameters=Other_qshields_Parameters, Root_Output_Dir=Root_Output_Dir, Simulation_Name=Simulation_Name)
+    Qshields_Command ="{qshields_Location} {Source} {Source_Location} -N $Events {Other_qshields_Parameters} -o'r'{Root_Output_Dir}/{qshields_Simulation_Name}_$taskID.root -i $Random_Seed".format(qshields_Location=qshields_Location, Source=Source, Source_Location=Source_Location, Other_qshields_Parameters=Other_qshields_Parameters, Root_Output_Dir=Root_Output_Dir, qshields_Simulation_Name=qshields_Simulation_Name)
     time.sleep(3)
     print("*"*60)
     print("Generating qshields Command")
@@ -188,7 +192,7 @@ if (Write_qshields):
     # Generate script for PBS Scheduler
     if Batch_Scheduler == "PBS":
 
-        qsub_file = open("%s/%s_%s.pbs" %(qshields_Script_Dir, Job_Name, Simulation_Name), "w")
+        qsub_file = open("%s/%s_%s.pbs" %(qshields_Script_Dir, Job_Name, qshields_Simulation_Name), "w")
     
         qsub_file.write("#PBS -N %s\n" %(Job_Name))
         qsub_file.write("#PBS -S /bin/bash\n")
@@ -217,7 +221,7 @@ if (Write_qshields):
         print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job - 1))
         print("The %s jobs will be output at %s/" %(Batch_Scheduler, Local_Storage_Dir))
         print("The scripts can be run from %s" %(qshields_Script_Dir))
-        print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, Simulation_Name))
+        print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
         print("*"*60)
 
 ##### Options for Saving to DB #####
@@ -233,7 +237,7 @@ if (Write_g4cuore):
     g4cuore_input_file_list_name = "%s/g4cuore_input_root_file_list.sh" %(g4cuore_Script_Dir)
 
     # The g4cuore command
-    g4cuore_Command = "{g4cuore_Location} -o'r'{Output_File} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), Output_File = Output_File.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
+    g4cuore_Command = "{g4cuore_Location} -o'r'{g4cuore_Storage_Dir}{g4cuore_Output_File_Name} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), g4cuore_Storage_Dir=g4cuore_Storage_Dir.lstrip(), g4cuore_Output_File_Name = g4cuore_Output_File_Name.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
 
     g4cuore_file.write("%s \n" %(g4cuore_Command))
     
@@ -242,15 +246,16 @@ if (Write_g4cuore):
     g4cuore_input_file_list = open("%s" %(g4cuore_input_file_list_name), "w")
 
     for i in range (0, Number_Of_Jobs):
-        g4cuore_input_file_list.write("%s/%s_%s.root \n" %(Root_Output_Dir, Simulation_Name, i))
+        g4cuore_input_file_list.write("%s/%s_%s.root \n" %(Root_Output_Dir, qshields_Simulation_Name, i))
 
     # Talk to the user
     time.sleep(3)
     print("*" * 60)
     print("The g4cuore command you are generating is:\n%s" %(g4cuore_Command))
-    print("The g4cuore command has been written to %s/g4cuore." %(Local_Script_Dir))
-    print("The g4cuore command will use the files located in %s." %(Root_Output_Dir))
-    print("You can run the g4cuore command with: \n\t >%s" %(g4cuore_input_file_list_name))
+    print("The g4cuore command has been written to %s" %(g4cuore_Script_Dir))
+    print("The g4cuore command will use the files located in %s" %(Root_Output_Dir))
+    print("The output file will be written to %s/%s" %(g4cuore_Storage_Dir, g4cuore_Output_File_Name))
+    print("You can run the g4cuore command with: \n\t >%s/g4cuore.sh" %(g4cuore_Script_Dir))
     print("*" * 60)
     
 
@@ -282,11 +287,11 @@ import getpass
 password = getpass.getpass('Password for DB (\"Pl*****\"): ')
 client = MongoClient('mongodb://{DB_USERNAME}:%s@localhost:{DB_PORT}/' %(password))
 del password
-db = client.{DB_Database}
-collection = db.{DB_Database}
+db = client.{DB_DATABASE}
+collection = db.{DB_DATABASE}
 
 \t# Create a post to add to the database
-DB_Post = db.{DB_Collection}
+DB_Post = db.{DB_COLLECTION}
 
 \t# Edit the qshields parameters to make them look nicer in the database
 Source_Location = Source_Location.replace("\\","")
@@ -294,41 +299,55 @@ Other_qshields_Parameters = Other_qshields_Parameters.replace("\\","")
 
 \t# if tag version upload this
 if(GIT_IS_TAG_VERSION):
-\tpost = {
+\tpost = {{
 \t\t"MC Author": {USER_NAME},
 \t\t"Date Generated": {DATE_GENERATED},
 \t\t"Cluster Generated From": {CLUSTER_USED},
 \t\t"Git Tag": {GIT_TAG_NAME},
-\t\t"qshields Storage Location": {QSHIELDS_STORAGE_LOCATION},
+\t\t"qshields Storage Location": {QSHIELDS_STORAGE_DIR},
+\t\t"qshields simulation name": {QSHIELDS_SIMULATION_NAME},
+\t\t"g4cuore Storage Location": {G4CUORE_STORAGE_DIR},
 \t\t"Source": {SOURCE},
 \t\t"Source Location": {SOURCE_LOCATION},
 \t\t"Number of Events": {TOTAL_NUMBER_OF_EVENTS},
 \t\t"Other qshields Parameters": {OTHER_QSHIELDS_PARAMETERS},
 \t\t"G4cuore Options": {ALL_G4CUORE_COMMANDS},
-\t\t"Comments": {COMMENTS}}
+\t\t"Comments": {COMMENTS}}}
 
 \t# if not tag version upload this
 else:
-\tpost = {
+\tpost = {{
 \t\t"MC Author": {USER_NAME},
 \t\t"Date Generated": {DATE_GENERATED},
 \t\t"Cluster Generated From": {CLUSTER_USED},
 \t\t"qshields Git Commit Hash": {GIT_COMMIT_HASH},
-\t\t"qshields Storage Location": {QSHIELDS_STORAGE_LOCATION},
+\t\t"qshields Storage Location": {QSHIELDS_STORAGE_DIR},
+\t\t"qshields Simulation Name": {QSHIELDS_SIMULATION_NAME},
+\t\t"g4cuore Storage Location": {G4CUORE_STORAGE_DIR},
 \t\t"Source": {SOURCE},
 \t\t"Source Location": {SOURCE_LOCATION},
 \t\t"Number of Events": {TOTAL_NUMBER_OF_EVENTS},
 \t\t"Other qshields Parameters": {OTHER_QSHIELDS_PARAMETERS},
 \t\t"G4cuore Options": {ALL_G4CUORE_COMMANDS},
-\t\t"Comments": {COMMENTS}}
+\t\t"Comments": {COMMENTS}}}
 
 # Insert into the collection
 post_id = DB_Post.insert_one(post).inserted_id
 
 print(post_id)
 #print(db.collection_names(include_system_collections=False))
-print(DB_Post.find_one({"_id":post_id}))
-""".format(DB_SCRIPT_DIR=DB_Script_Dir, DB_USERNAME=DB_Username, DB_PORT=DB_Port, DB_DATABASE=DB_Database, DB_COLLECTION=DB_Collection, GIT_IS_TAG_VERSION=Git_Is_Tag_Version, USER_NAME=User_Name, DATE_GENERATED=Date_Generated, CLUSTER_USED=Cluster_Used, GIT_TAG_NAME=Git_Tag_Name, GIT_COMMIT_HASH=Git_Commit_Hash, QSHIELDS_STORAGE_LOCATION=qshields_Storage_Location, SOURCE=Source, SOURCE_LOCATION=Source_Location, TOTAL_NUMBER_OF_EVENTS=Total_Number_Of_Events, OTHER_QSHIELDS_PARAMETERS=Other_qshields_Parameters, COMMENTS=Comments
+print(DB_Post.find_one({{"_id":post_id}}))
+""".format(DB_SCRIPT_DIR=DB_Script_Dir, DB_USERNAME=DB_Username, DB_PORT=DB_Port, DB_DATABASE=DB_Database, DB_COLLECTION=DB_Collection, GIT_IS_TAG_VERSION=Git_Is_Tag_Version, USER_NAME=User_Name, DATE_GENERATED=Date_Generated, CLUSTER_USED=Cluster_Used, GIT_TAG_NAME=Git_Tag_Name, GIT_COMMIT_HASH=Git_Commit_Hash, QSHIELDS_STORAGE_DIR=qshields_Storage_Dir, QSHIELDS_SIMULATION_NAME=qshields_Simulation_Name, G4CUORE_STORAGE_DIR=g4cuore_Storage_Dir, SOURCE=Source, SOURCE_LOCATION=Source_Location, TOTAL_NUMBER_OF_EVENTS=Total_Number_Of_Events, OTHER_QSHIELDS_PARAMETERS=Other_qshields_Parameters, ALL_G4CUORE_COMMANDS=All_g4cuore_Commands, COMMENTS=Comments))
 
-# need to add more g4cuore parameters
-# need to write completion text
+                  
+# Talk to the user
+    time.sleep(3)
+    print("*" * 60)
+    print("The script to insert the MC info to the Database has been written to %s/db_upload.py" %(DB_Script_Dir))
+    print("You can run the upload script with (python 3.2 or greater): \n\t >python %s/db_upload.py" %(DB_Script_Dir))
+    print("*" * 60)
+
+
+print("*"*60)
+print("Script generation complete")
+print("*"*60)
