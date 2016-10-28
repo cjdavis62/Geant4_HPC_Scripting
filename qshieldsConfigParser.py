@@ -226,7 +226,7 @@ if (Write_qshields):
 
     hadd_file = open("%s/hadd.sh" %(qshields_Script_Dir), "w")
 
-    hadd_file.write("echo 'This script will now collect the partial root files into a singe file'")
+    hadd_file.write("echo 'This script will now collect the partial root files into a singe file'\n")
     
     # loop over set number of output files at a time, adding them to a tmp file, and then repeating
 
@@ -247,10 +247,11 @@ if (Write_qshields):
     for l in range (0, hadd_last_step):
         root_part = hadd_full_steps * 100 + l
         hadd_file.write("%s/%s_%s " %(Root_Output_Dir, qshields_Simulation_Name, root_part))
-        
-    hadd_file.write("hadd %s/%s.root %s/*.temp" %(qshields_Storage_Dir, qshields_Simulation_Name, qshields_Storage_Dir))
-    hadd_file.write("rm %s/*.temp" %(qshields_Storage_Dir))
-    hadd_file.write("echo 'root file collection complete'")
+
+    hadd_file.write("\n")
+    hadd_file.write("hadd %s/%s.root %s/*.temp \n" %(qshields_Storage_Dir, qshields_Simulation_Name, qshields_Storage_Dir))
+    hadd_file.write("rm %s/*.temp \n" %(qshields_Storage_Dir))
+    hadd_file.write("echo 'root file collection complete' \n")
     
 ##### Options for Saving to DB #####
 
