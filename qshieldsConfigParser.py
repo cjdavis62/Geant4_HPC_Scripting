@@ -224,6 +224,34 @@ if (Write_qshields):
         print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
         print("*"*60)
 
+    hadd_file = open("%s/hadd.sh" %(qshields_Script_Dir), "w")
+
+    hadd_file.write("echo 'This script will now collect the partial root files into a singe file'")
+    
+    # loop over set number of output files at a time, adding them to a tmp file, and then repeating
+
+    # Set number of files per hadd job to be 100
+    hadd_step_jobs = 100
+    hadd_full_steps = math.floor(float(Total_Number_Of_Jobs / hadd_step_jobs))
+    hadd_last_step = Total_Number_Of_Jobs % hadd_step_jobs
+
+
+    for i in range (0, hadd_full_steps):
+        hadd_file.write("hadd %s/tmp_%s.temp " %(qshields_Storage_Dir, i))
+        for j in range (0, hadd_step_jobs):
+            root_part = i * 100 + j 
+            hadd_file.write("%s/%s_%s " %(Root_Output_Dir, Simulation_Name, root_part))
+        hadd_file.write("\n")
+
+    hadd_file.write("hadd %s/tmp_%s.temp " %(qshields_Storage_Dir, hadd_full_steps))
+    for l in range (0, hadd_last_step):
+        root_part = hadd_full_steps * 100 + l
+        hadd_file.write("%s/%s_%s " %(Root_Output_Dir, Simulation_Name, root_part))
+        
+    hadd_file.write("hadd %s/%s.root %s/*.temp" %(qshields_Storage_Dir, qshields_Simulation_Name, qshields_Storage_Dir))
+    hadd_file.write("rm %s/*.temp" %(qshields_Storage_Dir))
+    hadd_file.write("echo 'root file collection complete'")
+    
 ##### Options for Saving to DB #####
 
 
@@ -237,7 +265,7 @@ if (Write_g4cuore):
     g4cuore_input_file_list_name = "%s/g4cuore_input_root_file_list.sh" %(g4cuore_Script_Dir)
 
     # The g4cuore command
-    g4cuore_Command = "{g4cuore_Location} -o'r'{g4cuore_Storage_Dir}{g4cuore_Output_File_Name} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), g4cuore_Storage_Dir=g4cuore_Storage_Dir.lstrip(), g4cuore_Output_File_Name = g4cuore_Output_File_Name.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
+    g4cuore_Command = "{g4cuore_Location} -o'r'{g4cuore_Storage_Dir}/{g4cuore_Output_File_Name} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), g4cuore_Storage_Dir=g4cuore_Storage_Dir.lstrip(), g4cuore_Output_File_Name = g4cuore_Output_File_Name.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
 
     g4cuore_file.write("%s \n" %(g4cuore_Command))
     
