@@ -232,8 +232,8 @@ if (Write_qshields):
 
     # Set number of files per hadd job to be 100
     hadd_step_jobs = 100
-    hadd_full_steps = math.floor(float(Total_Number_Of_Jobs / hadd_step_jobs))
-    hadd_last_step = Total_Number_Of_Jobs % hadd_step_jobs
+    hadd_full_steps = math.floor(float(Number_Of_Jobs / hadd_step_jobs))
+    hadd_last_step = Number_Of_Jobs % hadd_step_jobs
 
 
     for i in range (0, hadd_full_steps):
