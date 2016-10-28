@@ -240,13 +240,13 @@ if (Write_qshields):
         hadd_file.write("hadd %s/tmp_%s.temp " %(qshields_Storage_Dir, i))
         for j in range (0, hadd_step_jobs):
             root_part = i * 100 + j 
-            hadd_file.write("%s/%s_%s " %(Root_Output_Dir, Simulation_Name, root_part))
+            hadd_file.write("%s/%s_%s " %(Root_Output_Dir, qshields_Simulation_Name, root_part))
         hadd_file.write("\n")
 
     hadd_file.write("hadd %s/tmp_%s.temp " %(qshields_Storage_Dir, hadd_full_steps))
     for l in range (0, hadd_last_step):
         root_part = hadd_full_steps * 100 + l
-        hadd_file.write("%s/%s_%s " %(Root_Output_Dir, Simulation_Name, root_part))
+        hadd_file.write("%s/%s_%s " %(Root_Output_Dir, qshields_Simulation_Name, root_part))
         
     hadd_file.write("hadd %s/%s.root %s/*.temp" %(qshields_Storage_Dir, qshields_Simulation_Name, qshields_Storage_Dir))
     hadd_file.write("rm %s/*.temp" %(qshields_Storage_Dir))
