@@ -296,6 +296,10 @@ if (Write_to_DB):
 
     db_file = open("%s/db_upload.py" %(DB_Script_Dir), "w")
 
+    # Edit the qshields parameters to make them look nicer in the database
+    Source_Location = Source_Location.replace("\\","")
+    Other_qshields_Parameters = Other_qshields_Parameters.replace("\\","")
+
     # Write the file to be run:
     db_file.write("""#run with python3.5 {DB_SCRIPT_DIR}/db_upload.py
 import sys
@@ -321,52 +325,51 @@ collection = db.{DB_DATABASE}
 
 \t# Create a post to add to the database
 DB_Post = db.{DB_COLLECTION}
+""".format(DB_SCRIPT_DIR=DB_Script_Dir, DB_USERNAME=DB_Username, DB_PORT=DB_Port, DB_DATABASE=DB_Database, DB_COLLECTION=DB_Collection))
 
-\t# Edit the qshields parameters to make them look nicer in the database
-Source_Location = Source_Location.replace("\\","")
-Other_qshields_Parameters = Other_qshields_Parameters.replace("\\","")
+    # if tag version upload this
+    if(Git_Is_Tag_Version):
+        db_file.write("""post = {{
+\t"MC Author": "{USER_NAME}",
+\t"Date Generated": "{DATE_GENERATED}",
+\t"Cluster Generated From": "{CLUSTER_USED}",
+\t"Git Tag": "{GIT_TAG_NAME}",
+\t"qshields Storage Location": "{QSHIELDS_STORAGE_DIR}",
+\t"qshields simulation name": "{QSHIELDS_SIMULATION_NAME}",
+\t"g4cuore Storage Location": "{G4CUORE_STORAGE_DIR}",
+\t"Source": "{SOURCE}",
+\t"Source Location": "{SOURCE_LOCATION}",
+\t"Number of Events":" {TOTAL_NUMBER_OF_EVENTS}",
+\t"Other qshields Parameters": "{OTHER_QSHIELDS_PARAMETERS}",
+\t"G4cuore Options": "{ALL_G4CUORE_COMMANDS}",
+\t"Comments": "{COMMENTS}"}}
+""".format(USER_NAME=User_Name, DATE_GENERATED=Date_Generated, CLUSTER_USED=Cluster_Used, GIT_TAG_NAME=Git_Tag_Name, QSHIELDS_STORAGE_DIR=qshields_Storage_Dir, QSHIELDS_SIMULATION_NAME=qshields_Simulation_Name, G4CUORE_STORAGE_DIR=g4cuore_Storage_Dir, SOURCE=Source, SOURCE_LOCATION=Source_Location, TOTAL_NUMBER_OF_EVENTS=Total_Number_Of_Events, OTHER_QSHIELDS_PARAMETERS=Other_qshields_Parameters, ALL_G4CUORE_COMMANDS=All_g4cuore_Commands, COMMENTS=Comments))
 
-\t# if tag version upload this
-if(GIT_IS_TAG_VERSION):
-\tpost = {{
-\t\t"MC Author": {USER_NAME},
-\t\t"Date Generated": {DATE_GENERATED},
-\t\t"Cluster Generated From": {CLUSTER_USED},
-\t\t"Git Tag": {GIT_TAG_NAME},
-\t\t"qshields Storage Location": {QSHIELDS_STORAGE_DIR},
-\t\t"qshields simulation name": {QSHIELDS_SIMULATION_NAME},
-\t\t"g4cuore Storage Location": {G4CUORE_STORAGE_DIR},
-\t\t"Source": {SOURCE},
-\t\t"Source Location": {SOURCE_LOCATION},
-\t\t"Number of Events": {TOTAL_NUMBER_OF_EVENTS},
-\t\t"Other qshields Parameters": {OTHER_QSHIELDS_PARAMETERS},
-\t\t"G4cuore Options": {ALL_G4CUORE_COMMANDS},
-\t\t"Comments": {COMMENTS}}}
+    # if not tag version upload this
+    else:
+        db_file.write("""post = {{
+\t"MC Author": "{USER_NAME}",
+\t"Date Generated": "{DATE_GENERATED}",
+\t"Cluster Generated From": "{CLUSTER_USED}",
+\t"qshields Git Commit Hash": "{GIT_COMMIT_HASH}",
+\t"qshields Storage Location": "{QSHIELDS_STORAGE_DIR}",
+\t"qshields Simulation Name": "{QSHIELDS_SIMULATION_NAME}",
+\t"g4cuore Storage Location": "{G4CUORE_STORAGE_DIR}",
+\t"Source": "{SOURCE}",
+\t"Source Location": "{SOURCE_LOCATION}",
+\t"Number of Events": "{TOTAL_NUMBER_OF_EVENTS}",
+\t"Other qshields Parameters": "{OTHER_QSHIELDS_PARAMETERS}",
+\t"G4cuore Options": "{ALL_G4CUORE_COMMANDS}",
+\t"Comments": "{COMMENTS}"}}
+""".format(USER_NAME=User_Name, DATE_GENERATED=Date_Generated, CLUSTER_USED=Cluster_Used, GIT_COMMIT_HASH=Git_Commit_Hash, QSHIELDS_STORAGE_DIR=qshields_Storage_Dir, QSHIELDS_SIMULATION_NAME=qshields_Simulation_Name, G4CUORE_STORAGE_DIR=g4cuore_Storage_Dir, SOURCE=Source, SOURCE_LOCATION=Source_Location, TOTAL_NUMBER_OF_EVENTS=Total_Number_Of_Events, OTHER_QSHIELDS_PARAMETERS=Other_qshields_Parameters, ALL_G4CUORE_COMMANDS=All_g4cuore_Commands, COMMENTS=Comments))
 
-\t# if not tag version upload this
-else:
-\tpost = {{
-\t\t"MC Author": {USER_NAME},
-\t\t"Date Generated": {DATE_GENERATED},
-\t\t"Cluster Generated From": {CLUSTER_USED},
-\t\t"qshields Git Commit Hash": {GIT_COMMIT_HASH},
-\t\t"qshields Storage Location": {QSHIELDS_STORAGE_DIR},
-\t\t"qshields Simulation Name": {QSHIELDS_SIMULATION_NAME},
-\t\t"g4cuore Storage Location": {G4CUORE_STORAGE_DIR},
-\t\t"Source": {SOURCE},
-\t\t"Source Location": {SOURCE_LOCATION},
-\t\t"Number of Events": {TOTAL_NUMBER_OF_EVENTS},
-\t\t"Other qshields Parameters": {OTHER_QSHIELDS_PARAMETERS},
-\t\t"G4cuore Options": {ALL_G4CUORE_COMMANDS},
-\t\t"Comments": {COMMENTS}}}
-
-# Insert into the collection
+    db_file.write("""# Insert into the collection
 post_id = DB_Post.insert_one(post).inserted_id
 
 print(post_id)
 #print(db.collection_names(include_system_collections=False))
-print(DB_Post.find_one({{"_id":post_id}}))
-""".format(DB_SCRIPT_DIR=DB_Script_Dir, DB_USERNAME=DB_Username, DB_PORT=DB_Port, DB_DATABASE=DB_Database, DB_COLLECTION=DB_Collection, GIT_IS_TAG_VERSION=Git_Is_Tag_Version, USER_NAME=User_Name, DATE_GENERATED=Date_Generated, CLUSTER_USED=Cluster_Used, GIT_TAG_NAME=Git_Tag_Name, GIT_COMMIT_HASH=Git_Commit_Hash, QSHIELDS_STORAGE_DIR=qshields_Storage_Dir, QSHIELDS_SIMULATION_NAME=qshields_Simulation_Name, G4CUORE_STORAGE_DIR=g4cuore_Storage_Dir, SOURCE=Source, SOURCE_LOCATION=Source_Location, TOTAL_NUMBER_OF_EVENTS=Total_Number_Of_Events, OTHER_QSHIELDS_PARAMETERS=Other_qshields_Parameters, ALL_G4CUORE_COMMANDS=All_g4cuore_Commands, COMMENTS=Comments))
+print(DB_Post.find_one({"_id":post_id}))
+""")
 
                   
 # Talk to the user
