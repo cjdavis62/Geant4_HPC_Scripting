@@ -121,44 +121,48 @@ All_g4cuore_Commands = str.join(' ',(Coincidence_Time, Integration_Time, Exclude
 os.system("clear")
 
 # Create Directories as needed
-print("Generating Directories as needed")
-if not(os.path.isdir(Local_Script_Dir)):
-    os.system("mkdir -p %s" %(Local_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(Local_Script_Dir))
-if not(os.path.isdir(Local_Storage_Dir)):
-    os.system("mkdir -p %s" %(Local_Storage_Dir))
-else:
-    print("Directory %s exists, continuing" %(Local_Storage_Dir))
-if not(os.path.isdir(Root_Output_Dir)):
-    os.system("mkdir -p %s" %(Root_Output_Dir))
-else:
-    print("Directory %s exists, continuing" %(Root_Output_Dir))
-if not(os.path.isdir(Log_File_Dir)):
-    os.system("mkdir -p %s" %(Log_File_Dir))
-else:
-    print("Directory %s exists, continuing" %(Log_File_Dir))
-if not(os.path.isdir("%s" %(qshields_Script_Dir))):
-    os.system("mkdir -p %s" %(qshields_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(qshields_Script_Dir))
-if not(os.path.isdir("%s" %(qshields_Storage_Dir))):
-    os.system("mkdir -p %s" %(qshields_Storage_Dir))
-else: 
-    print("Directory %s exists, continuing" %(qshields_Storage_Dir))
-if not(os.path.isdir("%s" %(g4cuore_Script_Dir))):
-    os.system("mkdir -p %s" %(g4cuore_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(g4cuore_Script_Dir))
-if not(os.path.isdir("%s" %(g4cuore_Storage_Dir))):
-    os.system("mkdir -p %s" %(g4cuore_Storage_Dir))
-else: 
-    print("Directory %s exists, continuing" %(g4cuore_Storage_Dir))
-if not(os.path.isdir("%s" %(DB_Script_Dir))):
-    os.system("mkdir -p %s" %(DB_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(DB_Script_Dir))
+while True:
+    print("Generating Directories as needed")
+    if not(os.path.isdir(Local_Script_Dir)):
+        os.system("mkdir -p %s" %(Local_Script_Dir))
+    else:
+        print("Directory %s exists, continuing" %(Local_Script_Dir))
+    if not(os.path.isdir(Local_Storage_Dir)):
+            os.system("mkdir -p %s" %(Local_Storage_Dir))
+    else:
+        print("Directory %s exists, continuing" %(Local_Storage_Dir))
+    if not(os.path.isdir(Root_Output_Dir)):
+        os.system("mkdir -p %s" %(Root_Output_Dir))
+    else:
+        print("Directory %s exists, continuing" %(Root_Output_Dir))
+    if not(os.path.isdir(Log_File_Dir)):
+        os.system("mkdir -p %s" %(Log_File_Dir))
+    else:
+        print("Directory %s exists, continuing" %(Log_File_Dir))
+    if not(os.path.isdir("%s" %(qshields_Script_Dir))):
+        os.system("mkdir -p %s" %(qshields_Script_Dir))
+    else:
+        print("Directory %s exists, continuing" %(qshields_Script_Dir))
+    if not(os.path.isdir("%s" %(qshields_Storage_Dir))):
+        os.system("mkdir -p %s" %(qshields_Storage_Dir))
+    else: 
+        print("Directory %s exists, continuing" %(qshields_Storage_Dir))
+    if not(os.path.isdir("%s" %(g4cuore_Script_Dir))):
+        os.system("mkdir -p %s" %(g4cuore_Script_Dir))
+    else:
+        print("Directory %s exists, continuing" %(g4cuore_Script_Dir))
+    if not(os.path.isdir("%s" %(g4cuore_Storage_Dir))):
+        os.system("mkdir -p %s" %(g4cuore_Storage_Dir))
+    else: 
+        print("Directory %s exists, continuing" %(g4cuore_Storage_Dir))
+    if not(os.path.isdir("%s" %(DB_Script_Dir))):
+        os.system("mkdir -p %s" %(DB_Script_Dir))
+    else:
+        print("Directory %s exists, continuing" %(DB_Script_Dir))
 
+except: 
+    print("Error creating directories. Check to make sure you have permissions to write here")
+print("Directory Generation Complete, no errors")
 
 # Check if output locations are empty
 if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)): 
