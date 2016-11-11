@@ -52,6 +52,8 @@ Write_to_DB = config.getboolean('general_options', 'Write_to_DB')
 # Get options for qshields
 qshields_Script_Dir = config.get('qshields_options', 'qshields_Script_Dir')
 qshields_Storage_Dir = config.get('qshields_options', 'qshields_Storage_Dir')
+Source_Setup_File = config.getboolean('qshields_options', 'Source_Setup_File')
+MC_Setup_File = config.get('qshields_options', 'MC_Setup_File')
 Source = config.get('qshields_options', 'Source')
 Source_Location = config.get('qshields_options', 'Source_Location')
 Total_Number_Of_Events = int(config.getfloat('qshields_options', 'Total_Number_Of_Events'))
@@ -107,6 +109,29 @@ Git_Tag_Name = config.get('database_options', 'Git_Tag_Name')
 qshields_Storage_Location = config.get('database_options', 'qshields_Storage_Location')
 Comments = config.get('database_options', 'Comments')
 
+#### Checks on Config File inputs ####
+
+if(Write_qshields):
+    if(Source_Setup_File):
+        while True:
+            try:
+                f = open(MC_Setup_File, 'r')
+            except IOError:
+                print("Cannot open %s" %(MC_Setup_File))
+            else:
+                f.close()
+                break
+
+    if not(os.path.exists(qshields_Location)):
+        print("A file does not exist at location %s" %(qshields_Location))
+        print("Exiting...")
+        sys.exit(2)
+
+if(Write_g4cuore):
+    if not(os.path.exists(g4cuore_Location)):
+        print("A file does not exist at location %s" %s(g4cuore_Location))
+        print("Exiting...")
+        sys.exit(2)
 
 ##### End Reading Config File #####
 
@@ -121,58 +146,79 @@ All_g4cuore_Commands = str.join(' ',(Coincidence_Time, Integration_Time, Exclude
 os.system("clear")
 
 # Create Directories as needed
-print("Generating Directories as needed")
-if not(os.path.isdir(Local_Script_Dir)):
-    os.system("mkdir -p %s" %(Local_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(Local_Script_Dir))
-if not(os.path.isdir(Local_Storage_Dir)):
-    os.system("mkdir -p %s" %(Local_Storage_Dir))
-else:
-    print("Directory %s exists, continuing" %(Local_Storage_Dir))
-if not(os.path.isdir(Root_Output_Dir)):
-    os.system("mkdir -p %s" %(Root_Output_Dir))
-else:
-    print("Directory %s exists, continuing" %(Root_Output_Dir))
-if not(os.path.isdir(Log_File_Dir)):
-    os.system("mkdir -p %s" %(Log_File_Dir))
-else:
-    print("Directory %s exists, continuing" %(Log_File_Dir))
-if not(os.path.isdir("%s" %(qshields_Script_Dir))):
-    os.system("mkdir -p %s" %(qshields_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(qshields_Script_Dir))
-if not(os.path.isdir("%s" %(qshields_Storage_Dir))):
-    os.system("mkdir -p %s" %(qshields_Storage_Dir))
-else: 
-    print("Directory %s exists, continuing" %(qshields_Storage_Dir))
-if not(os.path.isdir("%s" %(g4cuore_Script_Dir))):
-    os.system("mkdir -p %s" %(g4cuore_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(g4cuore_Script_Dir))
-if not(os.path.isdir("%s" %(g4cuore_Storage_Dir))):
-    os.system("mkdir -p %s" %(g4cuore_Storage_Dir))
-else: 
-    print("Directory %s exists, continuing" %(g4cuore_Storage_Dir))
-if not(os.path.isdir("%s" %(DB_Script_Dir))):
-    os.system("mkdir -p %s" %(DB_Script_Dir))
-else:
-    print("Directory %s exists, continuing" %(DB_Script_Dir))
+while True:
+    try:
 
+        print("Generating Directories as needed")
+        if not(os.path.isdir(Local_Script_Dir)):
+            os.system("mkdir -p %s" %(Local_Script_Dir))
+            print("Directory %s generated" %(Local_Script_Dir))
+        else:
+            print("Directory %s exists, continuing" %(Local_Script_Dir))
+        if not(os.path.isdir(Local_Storage_Dir)):
+            os.system("mkdir -p %s" %(Local_Storage_Dir))
+            print("Directory %s generated" %(Local_Storage_Dir))
+        else:
+            print("Directory %s exists, continuing" %(Local_Storage_Dir))
+        if(Write_qshields):
+            if not(os.path.isdir(Root_Output_Dir)):
+                os.system("mkdir -p %s" %(Root_Output_Dir))
+                print("Directory %s generated" %(Root_Output_Dir))
+            else:
+                print("Directory %s exists, continuing" %(Root_Output_Dir))
+            if not(os.path.isdir(Log_File_Dir)):
+                os.system("mkdir -p %s" %(Log_File_Dir))
+                print("Directory %s generated" %(Log_File_Dir))
+            else:
+                print("Directory %s exists, continuing" %(Log_File_Dir))
+            if not(os.path.isdir("%s" %(qshields_Script_Dir))):
+                os.system("mkdir -p %s" %(qshields_Script_Dir))
+                print("Directory %s generated" %(qshields_Script_Dir))
+            else:
+                print("Directory %s exists, continuing" %(qshields_Script_Dir))
+            if not(os.path.isdir("%s" %(qshields_Storage_Dir))):
+                os.system("mkdir -p %s" %(qshields_Storage_Dir))
+                print("Directory %s generated" %(qshields_Storage_Dir))
+            else: 
+                print("Directory %s exists, continuing" %(qshields_Storage_Dir))
+        if(Write_g4cuore):
+            if not(os.path.isdir("%s" %(g4cuore_Script_Dir))):
+                os.system("mkdir -p %s" %(g4cuore_Script_Dir))
+                print("Directory %s generated" %(g4cuore_Script_Dir))
+            else:
+                print("Directory %s exists, continuing" %(g4cuore_Script_Dir))
+            if not(os.path.isdir("%s" %(g4cuore_Storage_Dir))):
+                os.system("mkdir -p %s" %(g4cuore_Storage_Dir))
+                print("Directory %s generated" %(g4cuore_Storage_Dir))
+            else: 
+                print("Directory %s exists, continuing" %(g4cuore_Storage_Dir))
+        if(Write_to_DB):
+            if not(os.path.isdir("%s" %(DB_Script_Dir))):
+                os.system("mkdir -p %s" %(DB_Script_Dir))
+                print("Directory %s generated" %(DB_Script_Dir))
+            else:
+                print("Directory %s exists, continuing" %(DB_Script_Dir))
+
+    except: 
+        print("Error creating directories. Check to make sure you have permissions to write here")
+    else:
+        print("Directory generation complete")
+        break
 
 # Check if output locations are empty
-if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)): 
-    print("!!!!! WARNING !!!!!")
-    print("One or both of %s or %s not empty." %(Root_Output_Dir, Log_File_Dir))
-    print("Directories need to be empty to generate qshields pbs scripts.")
-    print("Will continue with other options. Empty directories to run qshields!")
-    print("!!! END WARNING !!!")
-    Write_qshields = False
+if(Write_qshields):
+    if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)): 
+        print("!!!!! WARNING !!!!!")
+        print("One or both of %s or %s not empty." %(Root_Output_Dir, Log_File_Dir))
+        print("Directories need to be empty to generate qshields pbs scripts.")
+        print("Will continue with other options. Empty directories to run qshields!")
+        print("!!! END WARNING !!!")
+        Write_qshields = False
 
 if not (Write_qshields):
     print("Skipping qshields")
     print("*"*60)
-if (Write_qshields):
+else:
     # Calculate how many events to put in each job and how many left over
     Number_Of_Events_Per_Job = math.floor(Total_Number_Of_Events / Number_Of_Jobs) + 1 # subtract 1 when counter reaches Events_Leftover
     Events_Leftover = Total_Number_Of_Events % Number_Of_Jobs
@@ -213,6 +259,9 @@ if (Write_qshields):
         qsub_file.write("Random_Seed=%s\n" %(Rand_Seed_Start))
         qsub_file.write("Random_Seed=$((Random_Seed + $taskID))\n")
         
+        if(Source_Setup_File):
+            qsub_file.write("source %s" %(MC_Setup_File))
+        
         qsub_file.write("%s\n" %(Qshields_Command))
 
         ##### Talk to the user ######
@@ -227,6 +276,7 @@ if (Write_qshields):
     hadd_file = open("%s/hadd.sh" %(qshields_Script_Dir), "w")
 
     hadd_file.write("echo 'This script will now collect the partial root files into a singe file'\n")
+    hadd_file.write("echo 'It may be prudent to run this script on a compute node, as this may take a while'\n")
     
     # loop over set number of output files at a time, adding them to a tmp file, and then repeating
 
@@ -260,7 +310,7 @@ if (Write_qshields):
 if not (Write_g4cuore):
     print("Skipping g4cuore...")
     print("*"*60)
-if (Write_g4cuore):
+else:
 
     g4cuore_file = open("%s/g4cuore.sh" %(g4cuore_Script_Dir), "w")
     g4cuore_input_file_list_name = "%s/g4cuore_input_root_file_list.sh" %(g4cuore_Script_Dir)
