@@ -132,7 +132,7 @@ if(Write_qshields):
 
 if(Write_g4cuore):
     if not(os.path.exists(g4cuore_Location)):
-        print("A file does not exist at location %s"(g4cuore_Location))
+        print("A file does not exist at location %s" %(g4cuore_Location))
         print("Exiting...")
         sys.exit(2)
 
