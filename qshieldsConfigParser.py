@@ -38,12 +38,15 @@ def Random_start():
 
 ### Get values from the config file ###
 
+config_file_name = "qshields.cfg"
+
 config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
-config.read('qshields.cfg')
+config.read(config_file_name)
 
 # Get general options
 Local_Script_Dir = config.get('general_options', 'Local_Script_Dir')
+Config_Script_Dir = config.get('general_options', 'Config_Script_Dir')
 Local_Storage_Dir = config.get('general_options', 'Local_Storage_Dir')
 Write_qshields = config.getboolean('general_options', 'Write_qshields')
 Write_g4cuore = config.getboolean('general_options', 'Write_g4cuore')
@@ -156,6 +159,11 @@ while True:
             print("Directory %s generated" %(Local_Script_Dir))
         else:
             print("Directory %s exists, continuing" %(Local_Script_Dir))
+        if not(os.path.isdir(Config_Script_Dir)):
+            os.system("mkdir -p %s" %(Config_Script_Dir))
+            print("Directory %s generated" %(Config_Script_Dir))
+        else: 
+            print("Directory %s exists, continuing" %(Config_Script_Dir))
         if not(os.path.isdir(Local_Storage_Dir)):
             os.system("mkdir -p %s" %(Local_Storage_Dir))
             print("Directory %s generated" %(Local_Storage_Dir))
@@ -205,6 +213,9 @@ while True:
     else:
         print("Directory generation complete")
         break
+
+# Copy config file to destination
+os.system("cp %s %s/." %(config_file_name, Config_Script_Dir))
     
 # Check if output locations are empty
 if(Write_qshields):
