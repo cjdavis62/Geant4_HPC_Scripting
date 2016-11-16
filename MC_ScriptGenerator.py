@@ -93,13 +93,13 @@ args = parser.parse_args()
 if(args.verbose): os.system("clear")
 
 if not(args.config):
-    print("!!!ERROR!!!")
+    print("ERROR"+"!"*75)
     print("Needs config file argument")
     parser.print_help()
     sys.exit(4)
 
 if not(os.path.isfile(args.config)):
-    print("!!!ERROR!!!")
+    print("ERROR"+"!"*75)
     print("config argument needs to be a file")
     sys.exit(5)
 
@@ -295,11 +295,12 @@ os.system("cp %s %s/." %(args.config, Config_Script_Dir))
 # Check if output locations are empty
 if(Write_qshields):
     if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)): 
-        print("!!!!! WARNING !!!!!")
+        print("WARNING" +"!"*73)
         print("One or both of %s or %s not empty." %(Root_Output_Dir, Log_File_Dir))
         print("Directories need to be empty to generate qshields pbs scripts.")
         print("Will continue with other options. Empty directories to run qshields!")
-        print("!!! END WARNING !!!")
+        print("END WARNING"+"!"*69)
+        warnings = True
         Write_qshields = False
 
 if not (Write_qshields):
@@ -529,7 +530,10 @@ print(DB_Post.find_one({"_id":post_id}))
 
 
 print("*"*80)
-print("Script generation complete")
+if not(warnings):
+    print("Script generation complete")
+else:
+    print("Script generation complete with warning(s)")
 print("*"*80)
 
 if(args.verbose) and not(args.nologo): miniCUORE()
