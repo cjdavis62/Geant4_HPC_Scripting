@@ -33,16 +33,91 @@ import time
 from pymongo import MongoClient
 import getpass
 
+import argparse
+
 def Random_start():
     return random.randint(1, 100000)
 
-### Get values from the config file ###
+def miniCUORE():
+    print("""
+           ,,,,,    ,,,,      ,,,      ,,,,,,      ,,,,,,,,      ,,,,,,,,       
+        -+syyyyso/  oyys     /yyy   `-osyyyys+:`   oyyyyyyso:   :yyyyyyyy/      
+      `shhhyo//+sy  yhhy     ohhh` .shhhyooyhhhs.  yhhh::+hhh/  /hhh+::::-      
+      ohhh/      `  yhhy     ohhh` shhh-    -hhhs  yhhh.-/hhh+  /hhho////.      
+      shhh.         shhh     shhh` yhhh      hhhy  yhhhhhhhh/   /hhhyssss-      
+      :hhhy:```.-+  +hhho-..+hhhs  /hhhs:..:shhh/  yhhh .shhh-  /hhh-           
+       -shhhhhhhhh   /yhhhhhhhh+`   -shhhhhhhhs:   yhhh   shhh- /hhhyyyyyo      
+         `-://::.`     .:://:.        `-://:-`     ::::   `:::- .::::::::-      
+""")
 
-config_file_name = "qshields.cfg"
+def bigCUORE():
+    print("""
+                                                                                
+                                                 `.-::/++++++/:.                
+                                           `.-/+oooosssssssssssoo:              
+                                       .-/+oooooosssssssssssssssss/             
+                                   .:/o+/:-.``   `.:osssssssssssss+             
+                               .:/+/:.`             .ossssssssssss:             
+                           .-/+/-.        `.....`    +sssssssssss/              
+                       `-:++:.`      `.-:////////-  `ossssssssso-               
+                    `-+o+:`      `..-..```.///////  /sssssssso:`                
+                 .:+oo/.      `.-.`        -/////.`/ossssso/-`                  
+             `./ooss/`     `.--`           :///:.-+ssso+/-`                     
+          `-/oossss+     .:/-`       ``...:/+++/+osssso/::--.``                 
+        .:+osssssss+  `-////   .-::////+++///+++//++ossssssoooo+/:.`            
+       :osssssssssso  ://///   -:::---...```-//////:--/ossssssssssoo+:.         
+       ossssssssssso  //////`                `-//////. `-+ossssssssssso+-       
+       +ssssssssssss` ://///.                  ///////`   -osssssssssssso/`     
+       +ssssssssssss. ://///-``                ://////.    .osssssssssssss+`    
+       /ssssssssssss-.://///-`....``          `//////:      -ssssssssssssss:    
+       :ssssssssssss- ``.://.    ``.--...``..-//////-`      `ssssssssssssss+    
+       :ssssssssssss/``   ``          ``..---:::--.`        `ssssssssssssss+    
+      `/sssssssssssso://:-.``                               -ssssssssssssso-    
+    `-/oosssssssssss+  `.-:///:-.``                        .osssssssssssso/     
+       `-:+oosssssss+        `.-:////:-.```             `./osssssssssssoo-      
+           `.-/+ooo/`              `.-:/+++///:::--:::/+oossssssssssoo+-`       
+                `..                      ``.--:/++ooooooooooooooo+/:-`          
+                                                   ```.........``               
+""")
+
+
+
+### Get command line arguments ###
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
+parser.add_argument("-C", "--config", type=str, help="the config file to be used")
+parser.add_argument("-l", "--nologo", help="Don't display awesome ASCII CUORE logo", action="store_true")
+args = parser.parse_args()
+
+# start with blank slate
+if(args.verbose): os.system("clear")
+
+if not(args.config):
+    print("!!!ERROR!!!")
+    print("Needs config file argument")
+    parser.print_help()
+    sys.exit(4)
+
+if not(os.path.isfile(args.config)):
+    print("!!!ERROR!!!")
+    print("config argument needs to be a file")
+    sys.exit(5)
+
+if not(args.nologo):
+
+    if(args.verbose): bigCUORE()
+    
+       
+if(args.verbose):
+    print("*"*80)
+    print("Verbosity turned on")
+
+
+### Get values from the config file ###
 
 config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
-config.read(config_file_name)
+config.read(args.config)
 
 # Get general options
 Local_Script_Dir = config.get('general_options', 'Local_Script_Dir')
@@ -145,77 +220,76 @@ All_g4cuore_Commands = str.join(' ',(Coincidence_Time, Integration_Time, Exclude
 
 #### Generate scripts #####
 
-# start with blank slate
-os.system("clear")
-
 # Create Directories as needed
 while True:
 
     try:
 
-        print("Generating Directories as needed")
+        print("*"*80)
+        print("Creating directories")
+        if(args.verbose): print("*"*80)
         if not(os.path.isdir(Local_Script_Dir)):
             os.system("mkdir -p %s" %(Local_Script_Dir))
-            print("Directory %s generated" %(Local_Script_Dir))
+            if(args.verbose): print("Directory %s generated" %(Local_Script_Dir)) 
         else:
-            print("Directory %s exists, continuing" %(Local_Script_Dir))
+            if(args.verbose): print("Directory %s exists, continuing" %(Local_Script_Dir)) 
         if not(os.path.isdir(Config_Script_Dir)):
             os.system("mkdir -p %s" %(Config_Script_Dir))
-            print("Directory %s generated" %(Config_Script_Dir))
+            if(args.verbose): print("Directory %s generated" %(Config_Script_Dir)) 
         else: 
-            print("Directory %s exists, continuing" %(Config_Script_Dir))
+            if(args.verbose): print("Directory %s exists, continuing" %(Config_Script_Dir)) 
         if not(os.path.isdir(Local_Storage_Dir)):
             os.system("mkdir -p %s" %(Local_Storage_Dir))
-            print("Directory %s generated" %(Local_Storage_Dir))
+            if(args.verbose): print("Directory %s generated" %(Local_Storage_Dir)) 
         else:
-            print("Directory %s exists, continuing" %(Local_Storage_Dir))
+            if(args.verbose): print("Directory %s exists, continuing" %(Local_Storage_Dir)) 
         if(Write_qshields):
             if not(os.path.isdir(Root_Output_Dir)):
                 os.system("mkdir -p %s" %(Root_Output_Dir))
-                print("Directory %s generated" %(Root_Output_Dir))
+                if(args.verbose): print("Directory %s generated" %(Root_Output_Dir)) 
             else:
-                print("Directory %s exists, continuing" %(Root_Output_Dir))
+                if(args.verbose): print("Directory %s exists, continuing" %(Root_Output_Dir)) 
             if not(os.path.isdir(Log_File_Dir)):
                 os.system("mkdir -p %s" %(Log_File_Dir))
-                print("Directory %s generated" %(Log_File_Dir))
+                if(args.verbose): print("Directory %s generated" %(Log_File_Dir)) 
             else:
-                print("Directory %s exists, continuing" %(Log_File_Dir))
+                if(args.verbose): print("Directory %s exists, continuing" %(Log_File_Dir)) 
             if not(os.path.isdir("%s" %(qshields_Script_Dir))):
                 os.system("mkdir -p %s" %(qshields_Script_Dir))
-                print("Directory %s generated" %(qshields_Script_Dir))
+                if(args.verbose): print("Directory %s generated" %(qshields_Script_Dir)) 
             else:
-                print("Directory %s exists, continuing" %(qshields_Script_Dir))
+                if(args.verbose): print("Directory %s exists, continuing" %(qshields_Script_Dir)) 
             if not(os.path.isdir("%s" %(qshields_Storage_Dir))):
                 os.system("mkdir -p %s" %(qshields_Storage_Dir))
-                print("Directory %s generated" %(qshields_Storage_Dir))
+                if(args.verbose): print("Directory %s generated" %(qshields_Storage_Dir)) 
             else: 
-                print("Directory %s exists, continuing" %(qshields_Storage_Dir))
+                if(args.verbose): print("Directory %s exists, continuing" %(qshields_Storage_Dir))  
         if(Write_g4cuore):
             if not(os.path.isdir("%s" %(g4cuore_Script_Dir))):
                 os.system("mkdir -p %s" %(g4cuore_Script_Dir))
-                print("Directory %s generated" %(g4cuore_Script_Dir))
+                if(args.verbose): print("Directory %s generated" %(g4cuore_Script_Dir)) 
             else:
-                print("Directory %s exists, continuing" %(g4cuore_Script_Dir))
+                if(args.verbose): print("Directory %s exists, continuing" %(g4cuore_Script_Dir)) 
             if not(os.path.isdir("%s" %(g4cuore_Storage_Dir))):
-                os.system("mkdir -p %s" %(g4cuore_Storage_Dir))
-                print("Directory %s generated" %(g4cuore_Storage_Dir))
+                os.system("mkdir -p %s" %(g4cuore_Storage_Dir)) 
+                if(args.verbose): print("Directory %s generated" %(g4cuore_Storage_Dir)) 
             else: 
-                print("Directory %s exists, continuing" %(g4cuore_Storage_Dir))
+                if(args.verbose): print("Directory %s exists, continuing" %(g4cuore_Storage_Dir)) 
         if(Write_to_DB):
             if not(os.path.isdir("%s" %(DB_Script_Dir))):
                 os.system("mkdir -p %s" %(DB_Script_Dir))
-                print("Directory %s generated" %(DB_Script_Dir))
+                if(args.verbose): print("Directory %s generated" %(DB_Script_Dir)) 
             else:
-                print("Directory %s exists, continuing" %(DB_Script_Dir))
+                if(args.verbose): print("Directory %s exists, continuing" %(DB_Script_Dir)) 
 
     except: 
         print("Error creating directories. Check to make sure you have permissions to write here")
     else:
-        print("Directory generation complete")
+        if(args.verbose): print("Directory generation complete")
         break
 
 # Copy config file to destination
-os.system("cp %s %s/." %(config_file_name, Config_Script_Dir))
+os.system("cp %s %s/." %(args.config, Config_Script_Dir))
     
 # Check if output locations are empty
 if(Write_qshields):
@@ -229,8 +303,12 @@ if(Write_qshields):
 
 if not (Write_qshields):
     print("Skipping qshields")
-    print("*"*60)
+    print("*"*80)
 else:
+
+    print("*"*80)
+    print("Generating qshields scripts")
+    if(args.verbose): print("*"*80)
     # Calculate how many events to put in each job and how many left over
     Number_Of_Events_Per_Job = math.floor(Total_Number_Of_Events / Number_Of_Jobs) + 1 # subtract 1 when counter reaches Events_Leftover
     Events_Leftover = Total_Number_Of_Events % Number_Of_Jobs
@@ -240,12 +318,9 @@ else:
 
     # The command to run
     Qshields_Command ="{qshields_Location} {Source} {Source_Location} -N $Events {Other_qshields_Parameters} -o'r'{Root_Output_Dir}/{qshields_Simulation_Name}_$taskID.root -i $Random_Seed".format(qshields_Location=qshields_Location, Source=Source, Source_Location=Source_Location, Other_qshields_Parameters=Other_qshields_Parameters, Root_Output_Dir=Root_Output_Dir, qshields_Simulation_Name=qshields_Simulation_Name)
-    time.sleep(3)
-    print("*"*60)
-    print("Generating qshields Command")
-    print("The total number of events you are generating is: %s" %(Total_Number_Of_Events))
-    print("The qshields command you are generating is:\n%s" %(Qshields_Command))
-    print("*"*60)
+    if(args.verbose): time.sleep(1)
+    if(args.verbose): print("The total number of events you are generating is: %s" %(Total_Number_Of_Events))
+    if(args.verbose): print("The qshields command you are generating is:\n%s" %(Qshields_Command))
 
     # Generate script for PBS Scheduler
     if Batch_Scheduler == "PBS":
@@ -277,13 +352,13 @@ else:
         qsub_file.write("%s\n" %(Qshields_Command))
 
         ##### Talk to the user ######
-        time.sleep(3)
-        print("*"*60)
-        print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job - 1))
-        print("The %s jobs will be output at %s/" %(Batch_Scheduler, Local_Storage_Dir))
-        print("The scripts can be run from %s" %(qshields_Script_Dir))
-        print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
-        print("*"*60)
+        if(args.verbose): time.sleep(1)
+        print("*"*80)
+        if(args.verbose): print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job - 1))
+        if(args.verbose): print("The %s jobs will be output at %s/" %(Batch_Scheduler, Local_Storage_Dir))
+        if(args.verbose): print("The scripts can be run from %s" %(qshields_Script_Dir))
+        if(args.verbose): print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
+        if(args.verbose): print("*"*80)
 
     hadd_file = open("%s/hadd.sh" %(qshields_Script_Dir), "w")
 
@@ -314,15 +389,17 @@ else:
     hadd_file.write("hadd %s/%s.root %s/*.temp \n" %(qshields_Storage_Dir, qshields_Simulation_Name, qshields_Storage_Dir))
     hadd_file.write("rm %s/*.temp \n" %(qshields_Storage_Dir))
     hadd_file.write("echo 'root file collection complete' \n")
-    
+
 ##### Options for Saving to DB #####
 
 
 #### Write the g4cuore file ####
 if not (Write_g4cuore):
     print("Skipping g4cuore...")
-    print("*"*60)
+    print("*"*80)
 else:
+
+    print("Generating g4cuore scripts")
 
     g4cuore_file = open("%s/g4cuore.sh" %(g4cuore_Script_Dir), "w")
     g4cuore_input_file_list_name = "%s/g4cuore_input_root_file_list.sh" %(g4cuore_Script_Dir)
@@ -340,21 +417,23 @@ else:
         g4cuore_input_file_list.write("%s/%s_%s.root \n" %(Root_Output_Dir, qshields_Simulation_Name, i))
 
     # Talk to the user
-    time.sleep(3)
-    print("*" * 60)
-    print("The g4cuore command you are generating is:\n%s" %(g4cuore_Command))
-    print("The g4cuore command has been written to %s" %(g4cuore_Script_Dir))
-    print("The g4cuore command will use the files located in %s" %(Root_Output_Dir))
-    print("The output file will be written to %s/%s" %(g4cuore_Storage_Dir, g4cuore_Output_File_Name))
-    print("You can run the g4cuore command with: \n\t >%s/g4cuore.sh" %(g4cuore_Script_Dir))
-    print("*" * 60)
+    if(args.verbose): time.sleep(1)
+    if(args.verbose): print("*"*80)
+    if(args.verbose): print("The g4cuore command you are generating is:\n%s" %(g4cuore_Command))
+    if(args.verbose): print("The g4cuore command has been written to %s" %(g4cuore_Script_Dir))
+    if(args.verbose): print("The g4cuore command will use the files located in %s" %(Root_Output_Dir))
+    if(args.verbose): print("The output file will be written to %s/%s" %(g4cuore_Storage_Dir, g4cuore_Output_File_Name))
+    if(args.verbose): print("You can run the g4cuore command with: \n\t >%s/g4cuore.sh" %(g4cuore_Script_Dir))
+    print("*"*80)
     
 
 #### Write the mongodb connection file ####
 if not (Write_to_DB):
     print("Skipping DB entry...")
-    print("*"*60)
+    print("*"*80)
 if (Write_to_DB):
+
+    print("Generating DB entry scripts")
 
     db_file = open("%s/db_upload.py" %(DB_Script_Dir), "w")
 
@@ -435,13 +514,14 @@ print(DB_Post.find_one({"_id":post_id}))
 
                   
 # Talk to the user
-    time.sleep(3)
-    print("*" * 60)
-    print("The script to insert the MC info to the Database has been written to %s/db_upload.py" %(DB_Script_Dir))
-    print("You can run the upload script with (python 3.2 or greater): \n\t >python %s/db_upload.py" %(DB_Script_Dir))
-    print("*" * 60)
+    if(args.verbose): time.sleep(1)
+    if(args.verbose): print("*"*80)
+    if(args.verbose): print("The script to insert the MC info to the Database has been written to %s/db_upload.py" %(DB_Script_Dir))
+    if(args.verbose): print("You can run the upload script with (python 3.2 or greater): \n\t >python %s/db_upload.py" %(DB_Script_Dir))
 
 
-print("*"*60)
+print("*"*80)
 print("Script generation complete")
-print("*"*60)
+print("*"*80)
+
+if(args.verbose) and not(args.nologo): miniCUORE()
