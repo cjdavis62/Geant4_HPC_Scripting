@@ -80,7 +80,8 @@ def bigCUORE():
                                                    ```.........``               
 """)
 
-
+# Start the script off with no warnings
+warnings = False
 
 ### Get command line arguments ###
 parser = argparse.ArgumentParser()
@@ -338,7 +339,6 @@ else:
         if(On_ULITE):
             Log_File_Dir_tmp = Log_File_Dir
             Log_File_Dir = "localhost:"+Log_File_Dir
-            print("Log_File_Dir")
         qsub_file.write("#PBS -o %s/\n" %(Log_File_Dir))
         qsub_file.write("#PBS -e %s/\n" %(Log_File_Dir))
         if(On_ULITE):
