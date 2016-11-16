@@ -1,0 +1,16 @@
+# Geant4_HPC_Scripting
+Scripts for generating HPC jobs for qshields and g4cuore with addition to upload to a DB
+Runs in bash shell with python3.2 or greater.
+
+# Run information
+Run with:
+>python3.X MC_ScriptGenerator.py -C CONFIG
+
+Example config files are in the Geant4_HPC_Scripting/cfg_examples directory
+
+# Usage tips
+Run the script and the config file for making a simulation and associated g4cuore processed simulation 
+Rerun the script with the copied config file when uploading to the DB. The DB is accessible from ULITE only.
+
+# Known Issues
+Does not work with other batch systems besides PBS for the moment
