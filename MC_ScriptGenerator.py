@@ -410,14 +410,19 @@ else:
 
     print("Generating g4cuore scripts")
 
-    g4cuore_file = open("%s/g4cuore.sh" %(g4cuore_Script_Dir), "w")
+    g4cuore_file_list = open("%s/g4cuore_list.sh" %(g4cuore_Script_Dir), "w")
+    g4cuore_file_nolist = open("%s/g4cuore_singlefile.sh" %(g4cuore_Script_Dir), "w")
     g4cuore_input_file_list_name = "%s/g4cuore_input_root_file_list.sh" %(g4cuore_Script_Dir)
+    g4cuore_input_file_nolist_name = "%s/%s.root" %(qshields_Storage_Dir, qshields_Simulation_Name)
 
     # The g4cuore command
-    g4cuore_Command = "{g4cuore_Location} -o'r'{g4cuore_Storage_Dir}/{g4cuore_Output_File_Name} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), g4cuore_Storage_Dir=g4cuore_Storage_Dir.lstrip(), g4cuore_Output_File_Name = g4cuore_Output_File_Name.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
+    g4cuore_list_Command = "{g4cuore_Location} -o'r'{g4cuore_Storage_Dir}/{g4cuore_Output_File_Name} -i'l'{g4cuore_input_file_list_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), g4cuore_Storage_Dir=g4cuore_Storage_Dir.lstrip(), g4cuore_Output_File_Name = g4cuore_Output_File_Name.lstrip(), g4cuore_input_file_list_name = g4cuore_input_file_list_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
 
-    g4cuore_file.write("%s \n" %(g4cuore_Command))
-    
+    g4cuore_nolist_Command = "{g4cuore_Location} -o'r'{g4cuore_Storage_Dir}/{g4cuore_Output_File_Name} -i'r'{g4cuore_input_file_nolist_name} {Coincidence_Time} {Integration_Time} {Excluded_Channels} {Dead_Time} {Pile_Up} {Multiplicity_Distance_Cut} {Event_Rate} {Threshold} {Resolution} {Other_g4cuore_Parameters}".format(g4cuore_Location=g4cuore_Location.lstrip(), g4cuore_Storage_Dir=g4cuore_Storage_Dir.lstrip(), g4cuore_Output_File_Name = g4cuore_Output_File_Name.lstrip(), g4cuore_input_file_nolist_name = g4cuore_input_file_nolist_name.lstrip(), Coincidence_Time = Coincidence_Time, Integration_Time = Integration_Time, Excluded_Channels = Excluded_Channels, Dead_Time = Dead_Time, Pile_Up = Pile_Up, Multiplicity_Distance_Cut = Multiplicity_Distance_Cut, Event_Rate = Event_Rate, Threshold = Threshold, Resolution = Resolution, Other_g4cuore_Parameters = Other_g4cuore_Parameters)
+
+    g4cuore_file_list.write("%s \n" %(g4cuore_list_Command))
+    g4cuore_file_nolist.write("%s \n" %(g4cuore_nolist_Command))
+
     # Write the file that contains the names of the .root files
     
     g4cuore_input_file_list = open("%s" %(g4cuore_input_file_list_name), "w")
