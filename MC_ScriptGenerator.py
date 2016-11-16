@@ -42,7 +42,7 @@ def miniCUORE():
     print("""
            ,,,,,    ,,,,      ,,,      ,,,,,,      ,,,,,,,,      ,,,,,,,,       
         -+syyyyso/  oyys     /yyy   `-osyyyys+:`   oyyyyyyso:   :yyyyyyyy/      
-      `shhhyo//+sy  yhhy     ohhh` .shhhyooyhhhs.  yhhh::+hhh/  /hhh+::::-      
+      `shhhyo//+sy  yhhy     ohhh` .shhhyooyhhhs.  yhhh::+hhh/  /hhh+,,,,-      
       ohhh/      `  yhhy     ohhh` shhh-    -hhhs  yhhh.-/hhh+  /hhho////.      
       shhh.         shhh     shhh` yhhh      hhhy  yhhhhhhhh/   /hhhyssss-      
       :hhhy:```.-+  +hhho-..+hhhs  /hhhs:..:shhh/  yhhh .shhh-  /hhh-           
@@ -142,6 +142,7 @@ qshields_Simulation_Name = config.get('qshields_options', 'qshields_Simulation_N
 # Get options for Batch Scheduler
 Batch_Scheduler = config.get('queue_options', 'Batch_Scheduler')
 Queue = config.get('queue_options', 'Queue')
+On_ULITE = config.getboolean('queue_options', 'On_ULITE')
 Number_Of_Jobs = config.getint('queue_options', 'Number_Of_Jobs')
 if Number_Of_Jobs <=0:
     print("Number Of Jobs must be an integer > 0")
@@ -333,8 +334,15 @@ else:
         qsub_file.write("#PBS -l walltime=%s nodes=1:ppn=1\n" %(Walltime))
         qsub_file.write("#PBS -M %s\n" %(User_Email))
         qsub_file.write("#PBS -m %s\n" %(Email_From_Host))
+        if(On_ULITE):
+            Log_File_Dir_tmp = Log_File_Dir
+            Log_File_Dir = "localhost:"+Log_File_Dir
+            print("Log_File_Dir")
         qsub_file.write("#PBS -o %s/\n" %(Log_File_Dir))
         qsub_file.write("#PBS -e %s/\n" %(Log_File_Dir))
+        if(On_ULITE):
+            Log_File_Dir = Log_File_Dir_tmp
+            del Log_File_Dir_tmp
         qsub_file.write("#PBS -t 0-%s\n" %(Number_Of_Jobs-1))
         
         qsub_file.write("taskID=$PBS_ARRAYID\n")
