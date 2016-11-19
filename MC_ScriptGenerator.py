@@ -1,15 +1,15 @@
 #####################################
 #                                   #
-#    Written by: Christopher Davis  #                           
+#    Written by: Christopher Davis  #
 #    christopher.davis@yale.edu     #
 #                                   #
-#    10 Aug 2016                    #
+#    18 Nov 2016                    #
 #                                   #
 #####################################
 
 # Requires Python 3.0 or later
 
-# This program reads the config file qshields.cfg and will generate scripts to be submitted to the PBS batch scheduler
+# This program reads an input file and will generate scripts to be submitted to the PBS batch scheduler
 
 # The first Section deals with the parameters for the qshields application
 # The second Section deals with the parameters for the PBS queue
@@ -27,7 +27,6 @@ if sys.version_info[0] != 3 or (sys.version_info[0] == 3 and sys.version_info[1]
 import configparser
 import os
 import math
-import datetime
 import random
 import time
 from pymongo import MongoClient
@@ -40,44 +39,44 @@ def Random_start():
 
 def miniCUORE():
     print("""
-           ,,,,,    ,,,,      ,,,      ,,,,,,      ,,,,,,,,      ,,,,,,,,       
-        -+syyyyso/  oyys     /yyy   `-osyyyys+:`   oyyyyyyso:   :yyyyyyyy/      
-      `shhhyo//+sy  yhhy     ohhh` .shhhyooyhhhs.  yhhh::+hhh/  /hhh+,,,,-      
-      ohhh/      `  yhhy     ohhh` shhh-    -hhhs  yhhh.-/hhh+  /hhho////.      
-      shhh.         shhh     shhh` yhhh      hhhy  yhhhhhhhh/   /hhhyssss-      
-      :hhhy:```.-+  +hhho-..+hhhs  /hhhs:..:shhh/  yhhh .shhh-  /hhh-           
-       -shhhhhhhhh   /yhhhhhhhh+`   -shhhhhhhhs:   yhhh   shhh- /hhhyyyyyo      
-         `-://::.`     .:://:.        `-://:-`     ::::   `:::- .::::::::-      
+           ,,,,,    ,,,,      ,,,      ,,,,,,      ,,,,,,,,      ,,,,,,,,
+        -+syyyyso/  oyys     /yyy   `-osyyyys+:`   oyyyyyyso:   :yyyyyyyy/
+      `shhhyo//+sy  yhhy     ohhh` .shhhyooyhhhs.  yhhh::+hhh/  /hhh+,,,,-
+      ohhh/      `  yhhy     ohhh` shhh-    -hhhs  yhhh.-/hhh+  /hhho////.
+      shhh.         shhh     shhh` yhhh      hhhy  yhhhhhhhh/   /hhhyssss-
+      :hhhy:```.-+  +hhho-..+hhhs  /hhhs:..:shhh/  yhhh .shhh-  /hhh-
+       -shhhhhhhhh   /yhhhhhhhh+`   -shhhhhhhhs:   yhhh   shhh- /hhhyyyyyo
+         `-://::.`     .:://:.        `-://:-`     ::::   `:::- .::::::::-
 """)
 
 def bigCUORE():
     print("""
-                                                                                
-                                                 `.-::/++++++/:.                
-                                           `.-/+oooosssssssssssoo:              
-                                       .-/+oooooosssssssssssssssss/             
-                                   .:/o+/:-.``   `.:osssssssssssss+             
-                               .:/+/:.`             .ossssssssssss:             
-                           .-/+/-.        `.....`    +sssssssssss/              
-                       `-:++:.`      `.-:////////-  `ossssssssso-               
-                    `-+o+:`      `..-..```.///////  /sssssssso:`                
-                 .:+oo/.      `.-.`        -/////.`/ossssso/-`                  
-             `./ooss/`     `.--`           :///:.-+ssso+/-`                     
-          `-/oossss+     .:/-`       ``...:/+++/+osssso/::--.``                 
-        .:+osssssss+  `-////   .-::////+++///+++//++ossssssoooo+/:.`            
-       :osssssssssso  ://///   -:::---...```-//////:--/ossssssssssoo+:.         
-       ossssssssssso  //////`                `-//////. `-+ossssssssssso+-       
-       +ssssssssssss` ://///.                  ///////`   -osssssssssssso/`     
-       +ssssssssssss. ://///-``                ://////.    .osssssssssssss+`    
-       /ssssssssssss-.://///-`....``          `//////:      -ssssssssssssss:    
-       :ssssssssssss- ``.://.    ``.--...``..-//////-`      `ssssssssssssss+    
-       :ssssssssssss/``   ``          ``..---:::--.`        `ssssssssssssss+    
-      `/sssssssssssso://:-.``                               -ssssssssssssso-    
-    `-/oosssssssssss+  `.-:///:-.``                        .osssssssssssso/     
-       `-:+oosssssss+        `.-:////:-.```             `./osssssssssssoo-      
-           `.-/+ooo/`              `.-:/+++///:::--:::/+oossssssssssoo+-`       
-                `..                      ``.--:/++ooooooooooooooo+/:-`          
-                                                   ```.........``               
+
+                                                 `.-::/++++++/:.
+                                           `.-/+oooosssssssssssoo:
+                                       .-/+oooooosssssssssssssssss/
+                                   .:/o+/:-.``   `.:osssssssssssss+
+                               .:/+/:.`             .ossssssssssss:
+                           .-/+/-.        `.....`    +sssssssssss/
+                       `-:++:.`      `.-:////////-  `ossssssssso-
+                    `-+o+:`      `..-..```.///////  /sssssssso:`
+                 .:+oo/.      `.-.`        -/////.`/ossssso/-`
+             `./ooss/`     `.--`           :///:.-+ssso+/-`
+          `-/oossss+     .:/-`       ``...:/+++/+osssso/::--.``
+        .:+osssssss+  `-////   .-::////+++///+++//++ossssssoooo+/:.`
+       :osssssssssso  ://///   -:::---...```-//////:--/ossssssssssoo+:.
+       ossssssssssso  //////`                `-//////. `-+ossssssssssso+-
+       +ssssssssssss` ://///.                  ///////`   -osssssssssssso/`
+       +ssssssssssss. ://///-``                ://////.    .osssssssssssss+`
+       /ssssssssssss-.://///-`....``          `//////:      -ssssssssssssss:
+       :ssssssssssss- ``.://.    ``.--...``..-//////-`      `ssssssssssssss+
+       :ssssssssssss/``   ``          ``..---:::--.`        `ssssssssssssss+
+      `/sssssssssssso://:-.``                               -ssssssssssssso-
+    `-/oosssssssssss+  `.-:///:-.``                        .osssssssssssso/
+       `-:+oosssssss+        `.-:////:-.```             `./osssssssssssoo-
+           `.-/+ooo/`              `.-:/+++///:::--:::/+oossssssssssoo+-`
+                `..                      ``.--:/++ooooooooooooooo+/:-`
+                                                   ```.........``
 """)
 
 # Start the script off with no warnings
@@ -107,8 +106,8 @@ if not(os.path.isfile(args.config)):
 if not(args.nologo):
 
     if(args.verbose): bigCUORE()
-    
-       
+
+
 if(args.verbose):
     print("*"*80)
     print("Verbosity turned on")
@@ -217,74 +216,70 @@ if(Write_g4cuore):
 
 ##### Non-Config File Options #####
 
-Date_utc = datetime.datetime.utcnow()
 All_g4cuore_Commands = str.join(' ',(Coincidence_Time, Integration_Time, Excluded_Channels, Dead_Time, Pile_Up, Multiplicity_Distance_Cut, Event_Rate, Threshold, Resolution, Other_g4cuore_Parameters))
 
 #### Generate scripts #####
 
 # Create Directories as needed
 while True:
-
     try:
-
         print("*"*80)
         print("Creating directories")
         if(args.verbose): print("*"*80)
         if not(os.path.isdir(Local_Script_Dir)):
             os.system("mkdir -p %s" %(Local_Script_Dir))
-            if(args.verbose): print("Directory %s generated" %(Local_Script_Dir)) 
+            if(args.verbose): print("Directory %s generated" %(Local_Script_Dir))
         else:
-            if(args.verbose): print("Directory %s exists, continuing" %(Local_Script_Dir)) 
+            if(args.verbose): print("Directory %s exists, continuing" %(Local_Script_Dir))
         if not(os.path.isdir(Config_Script_Dir)):
             os.system("mkdir -p %s" %(Config_Script_Dir))
-            if(args.verbose): print("Directory %s generated" %(Config_Script_Dir)) 
-        else: 
-            if(args.verbose): print("Directory %s exists, continuing" %(Config_Script_Dir)) 
+            if(args.verbose): print("Directory %s generated" %(Config_Script_Dir))
+        else:
+            if(args.verbose): print("Directory %s exists, continuing" %(Config_Script_Dir))
         if not(os.path.isdir(Local_Storage_Dir)):
             os.system("mkdir -p %s" %(Local_Storage_Dir))
-            if(args.verbose): print("Directory %s generated" %(Local_Storage_Dir)) 
+            if(args.verbose): print("Directory %s generated" %(Local_Storage_Dir))
         else:
-            if(args.verbose): print("Directory %s exists, continuing" %(Local_Storage_Dir)) 
+            if(args.verbose): print("Directory %s exists, continuing" %(Local_Storage_Dir))
         if(Write_qshields):
             if not(os.path.isdir(Root_Output_Dir)):
                 os.system("mkdir -p %s" %(Root_Output_Dir))
-                if(args.verbose): print("Directory %s generated" %(Root_Output_Dir)) 
+                if(args.verbose): print("Directory %s generated" %(Root_Output_Dir))
             else:
-                if(args.verbose): print("Directory %s exists, continuing" %(Root_Output_Dir)) 
+                if(args.verbose): print("Directory %s exists, continuing" %(Root_Output_Dir))
             if not(os.path.isdir(Log_File_Dir)):
                 os.system("mkdir -p %s" %(Log_File_Dir))
-                if(args.verbose): print("Directory %s generated" %(Log_File_Dir)) 
+                if(args.verbose): print("Directory %s generated" %(Log_File_Dir))
             else:
-                if(args.verbose): print("Directory %s exists, continuing" %(Log_File_Dir)) 
+                if(args.verbose): print("Directory %s exists, continuing" %(Log_File_Dir))
             if not(os.path.isdir("%s" %(qshields_Script_Dir))):
                 os.system("mkdir -p %s" %(qshields_Script_Dir))
-                if(args.verbose): print("Directory %s generated" %(qshields_Script_Dir)) 
+                if(args.verbose): print("Directory %s generated" %(qshields_Script_Dir))
             else:
-                if(args.verbose): print("Directory %s exists, continuing" %(qshields_Script_Dir)) 
+                if(args.verbose): print("Directory %s exists, continuing" %(qshields_Script_Dir))
             if not(os.path.isdir("%s" %(qshields_Storage_Dir))):
                 os.system("mkdir -p %s" %(qshields_Storage_Dir))
-                if(args.verbose): print("Directory %s generated" %(qshields_Storage_Dir)) 
-            else: 
-                if(args.verbose): print("Directory %s exists, continuing" %(qshields_Storage_Dir))  
+                if(args.verbose): print("Directory %s generated" %(qshields_Storage_Dir))
+            else:
+                if(args.verbose): print("Directory %s exists, continuing" %(qshields_Storage_Dir))
         if(Write_g4cuore):
             if not(os.path.isdir("%s" %(g4cuore_Script_Dir))):
                 os.system("mkdir -p %s" %(g4cuore_Script_Dir))
-                if(args.verbose): print("Directory %s generated" %(g4cuore_Script_Dir)) 
+                if(args.verbose): print("Directory %s generated" %(g4cuore_Script_Dir))
             else:
-                if(args.verbose): print("Directory %s exists, continuing" %(g4cuore_Script_Dir)) 
+                if(args.verbose): print("Directory %s exists, continuing" %(g4cuore_Script_Dir))
             if not(os.path.isdir("%s" %(g4cuore_Storage_Dir))):
-                os.system("mkdir -p %s" %(g4cuore_Storage_Dir)) 
-                if(args.verbose): print("Directory %s generated" %(g4cuore_Storage_Dir)) 
-            else: 
-                if(args.verbose): print("Directory %s exists, continuing" %(g4cuore_Storage_Dir)) 
+                os.system("mkdir -p %s" %(g4cuore_Storage_Dir))
+                if(args.verbose): print("Directory %s generated" %(g4cuore_Storage_Dir))
+            else:
+                if(args.verbose): print("Directory %s exists, continuing" %(g4cuore_Storage_Dir))
         if(Write_to_DB):
             if not(os.path.isdir("%s" %(DB_Script_Dir))):
                 os.system("mkdir -p %s" %(DB_Script_Dir))
-                if(args.verbose): print("Directory %s generated" %(DB_Script_Dir)) 
+                if(args.verbose): print("Directory %s generated" %(DB_Script_Dir))
             else:
-                if(args.verbose): print("Directory %s exists, continuing" %(DB_Script_Dir)) 
-
-    except: 
+                if(args.verbose): print("Directory %s exists, continuing" %(DB_Script_Dir))
+    except:
         print("Error creating directories. Check to make sure you have permissions to write here")
     else:
         if(args.verbose): print("Directory generation complete")
@@ -292,10 +287,10 @@ while True:
 
 # Copy config file to destination
 os.system("cp %s %s/." %(args.config, Config_Script_Dir))
-    
+
 # Check if output locations are empty
 if(Write_qshields):
-    if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)): 
+    if (os.listdir(Root_Output_Dir) or os.listdir(Log_File_Dir)):
         print("WARNING" +"!"*73)
         print("One or both of %s or %s not empty." %(Root_Output_Dir, Log_File_Dir))
         print("Directories need to be empty to generate qshields pbs scripts.")
@@ -329,7 +324,7 @@ else:
     if Batch_Scheduler == "PBS":
 
         qsub_file = open("%s/%s_%s.pbs" %(qshields_Script_Dir, Job_Name, qshields_Simulation_Name), "w")
-    
+
         qsub_file.write("#PBS -N %s\n" %(Job_Name))
         qsub_file.write("#PBS -S /bin/bash\n")
         qsub_file.write("#PBS -q %s\n" %(Queue))
@@ -345,7 +340,7 @@ else:
             Log_File_Dir = Log_File_Dir_tmp
             del Log_File_Dir_tmp
         qsub_file.write("#PBS -t 0-%s\n" %(Number_Of_Jobs-1))
-        
+
         qsub_file.write("taskID=$PBS_ARRAYID\n")
         qsub_file.write("Events_Leftover=%s\n" %(Events_Leftover))
         qsub_file.write("Events=%s\n" %(Number_Of_Events_Per_Job))
@@ -354,10 +349,10 @@ else:
         qsub_file.write("fi\n")
         qsub_file.write("Random_Seed=%s\n" %(Rand_Seed_Start))
         qsub_file.write("Random_Seed=$((Random_Seed + $taskID))\n")
-        
+
         if(Source_Setup_File):
             qsub_file.write("source %s\n" %(MC_Setup_File))
-        
+
         qsub_file.write("%s\n" %(Qshields_Command))
 
         ##### Talk to the user ######
@@ -373,7 +368,7 @@ else:
 
     hadd_file.write("echo 'This script will now collect the partial root files into a singe file'\n")
     hadd_file.write("echo 'It may be prudent to run this script on a compute node, as this may take a while'\n")
-    
+
     # loop over set number of output files at a time, adding them to a tmp file, and then repeating
 
     # Set number of files per hadd job to be 100
@@ -385,7 +380,7 @@ else:
     for i in range (0, hadd_full_steps):
         hadd_file.write("hadd %s/tmp_%s.temp " %(qshields_Storage_Dir, i))
         for j in range (0, hadd_step_jobs):
-            root_part = i * 100 + j 
+            root_part = i * 100 + j
             hadd_file.write("%s/%s_%s.root " %(Root_Output_Dir, qshields_Simulation_Name, root_part))
         hadd_file.write("\n")
 
@@ -424,7 +419,7 @@ else:
     g4cuore_file_nolist.write("%s \n" %(g4cuore_nolist_Command))
 
     # Write the file that contains the names of the .root files
-    
+
     g4cuore_input_file_list = open("%s" %(g4cuore_input_file_list_name), "w")
 
     for i in range (0, Number_Of_Jobs):
@@ -439,7 +434,7 @@ else:
     if(args.verbose): print("The output file will be written to %s/%s" %(g4cuore_Storage_Dir, g4cuore_Output_File_Name))
     if(args.verbose): print("You can run the g4cuore command with: \n\t >%s/g4cuore.sh" %(g4cuore_Script_Dir))
     print("*"*80)
-    
+
 
 #### Write the mongodb connection file ####
 if not (Write_to_DB):
@@ -526,7 +521,7 @@ print(post_id)
 print(DB_Post.find_one({"_id":post_id}))
 """)
 
-                  
+
 # Talk to the user
     if(args.verbose): time.sleep(1)
     if(args.verbose): print("*"*80)
