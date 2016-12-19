@@ -141,6 +141,9 @@ qshields_Simulation_Name = config.get('qshields_options', 'qshields_Simulation_N
 
 # Get options for Batch Scheduler
 Batch_Scheduler = config.get('queue_options', 'Batch_Scheduler')
+if not (Batch_Scheduler == "PBS" or Batch_Scheduler == "SLURM"):
+    print("Must use either PBS or SLURM as option for the batch scheduler. Other queues not currently supported.")
+    sys.exit(2)
 Queue = config.get('queue_options', 'Queue')
 On_ULITE = config.getboolean('queue_options', 'On_ULITE')
 Number_Of_Jobs = config.getint('queue_options', 'Number_Of_Jobs')
@@ -363,6 +366,60 @@ else:
         if(args.verbose): print("The scripts can be run from %s" %(qshields_Script_Dir))
         if(args.verbose): print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
         if(args.verbose): print("*"*80)
+    
+
+    # Generate script for SLURM scheduler# 
+    # Slurm! It's highly addictive!"
+
+    if Batch_Scheduler == "SLURM":
+        
+        slurm_file = open("%s/%s_%s.slurm" %(qshields_Script_Dir, Job_Name, qshields_Simulation_Name), "w")
+        
+        slurm_file.write("#!/bin/bash\n")
+        slurm_file.write("#SBATCH --job-name %s\n" %(Job_Name))
+        slurm_file.write("#SBATCH --array=1-%s\n" %(Number_Of_Jobs))
+
+        slurm_file.write("#SBATCH --partition=%s\n" %(Queue))
+        slurm_file.write("#SBATCH --time=%s\n" %(Walltime))
+        slurm_file.write("#SBATCH --ntasks=1\n") # note: does this fix for one node? Need to test so that each only takes a single CPU!
+        slurm_file.write("#SBATCH --mail-type=%s" %(Email_From_Host))
+        slurm_file.write("#SBATCH --mail-user=%s" %(User_Email))
+
+        if(On_ULITE):
+            Log_File_Dir_tmp = Log_File_Dir
+            Log_File_Dir = "localhost:"+Log_File_Dir
+        slurm_file.write("#SBATCH --output={Log_File_Dir}/slurm-%A-%a.out\n".format(Log_File_Dir=Log_File_Dir))
+        slurm_file.write("#SBATCH --error={Log_File_Dir}/slurm-%A-%a.err\n".format(Log_File_Dir=Log_File_Dir))
+        if(On_ULITE):
+            Log_File_Dir = Log_File_Dir_tmp
+            del Log_File_Dir_tmp
+
+        slurm_file.write("taskID=$SLURM_ARRAY_TASK_ID\n") # Check which variable maps to the PBS version
+        slurm_file.write("Events_Leftover=%s\n" %(Events_Leftover))
+        slurm_file.write("Events=%s\n" %(Number_Of_Events_Per_Job))
+        slurm_file.write("if [ \"$taskID\" -ge \"$Events_Leftover\" ]; then\n")
+        slurm_file.write("\tEvents=%s\n" %(Number_Of_Events_Per_Job - 1))
+        slurm_file.write("fi\n")
+        slurm_file.write("Random_Seed=%s\n" %(Rand_Seed_Start))
+        slurm_file.write("Random_Seed=$((Random_Seed + $taskID))\n")
+
+        if(Source_Setup_File):
+            slurm_file.write("source %s\n" %(MC_Setup_File))
+
+        slurm_file.write("%s\n" %(Qshields_Command))
+
+        ##### Talk to the user ######
+        if(args.verbose): time.sleep(1)
+        print("*"*80)
+        if(args.verbose): print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job - 1))
+        if(args.verbose): print("The %s jobs will be output at %s/" %(Batch_Scheduler, Local_Storage_Dir))
+        if(args.verbose): print("The scripts can be run from %s" %(qshields_Script_Dir))
+        if(args.verbose and Batch_Scheduler="PBS"): print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
+        else if(args.verbose and Batch_Scheduler="SLURM"): print("You can run the jobs with :\n\t >sbatch %s/%s_%s.slurm" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
+        if(args.verbose): print("*"*80)
+
+
+   ##### Generate nice script to hadd files together #####
 
     hadd_file = open("%s/hadd.sh" %(qshields_Script_Dir), "w")
 
@@ -394,7 +451,6 @@ else:
     hadd_file.write("rm %s/*.temp \n" %(qshields_Storage_Dir))
     hadd_file.write("echo 'root file collection complete' \n")
 
-##### Options for Saving to DB #####
 
 
 #### Write the g4cuore file ####
