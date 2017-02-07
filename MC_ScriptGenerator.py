@@ -356,6 +356,9 @@ else:
         if(Source_Setup_File):
             qsub_file.write("source %s\n" %(MC_Setup_File))
 
+
+        # Write the command to stdout
+        qsub_file.write("echo %s\n" %(Qshields_Command))
         qsub_file.write("%s\n" %(Qshields_Command))
 
         ##### Talk to the user ######
