@@ -326,7 +326,7 @@ else:
     # Generate script for PBS Scheduler
     if Batch_Scheduler == "PBS":
 
-        qsub_file = open("%s/%s_%s.pbs" %(qshields_Script_Dir, Job_Name, qshields_Simulation_Name), "w")
+        qsub_file = open("%s/%s.pbs" %(qshields_Script_Dir, Job_Name), "w")
 
         qsub_file.write("#PBS -N %s\n" %(Job_Name))
         qsub_file.write("#PBS -S /bin/bash\n")
@@ -376,7 +376,7 @@ else:
 
     if Batch_Scheduler == "SLURM":
         
-        slurm_file = open("%s/%s_%s.slurm" %(qshields_Script_Dir, Job_Name, qshields_Simulation_Name), "w")
+        slurm_file = open("%s/%s.slurm" %(qshields_Script_Dir, Job_Name), "w")
         
         slurm_file.write("#!/bin/bash\n")
         slurm_file.write("#SBATCH --job-name %s\n" %(Job_Name))
