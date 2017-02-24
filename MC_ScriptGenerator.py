@@ -29,7 +29,7 @@ import os
 import math
 import random
 import time
-from pymongo import MongoClient
+#from pymongo import MongoClient
 import getpass
 
 import argparse
@@ -149,6 +149,10 @@ On_ULITE = config.getboolean('queue_options', 'On_ULITE')
 Number_Of_Jobs = config.getint('queue_options', 'Number_Of_Jobs')
 if Number_Of_Jobs <=0:
     print("Number Of Jobs must be an integer > 0")
+    sys.exit(2)
+Max_Concurrent_Jobs = config.getint('queue_options', 'Max_Concurrent_Jobs')
+if Max_Concurrent_Jobs <=0:
+    print("Number of Concurrent Jobs must be an integer > 0")
     sys.exit(2)
 Job_Name = config.get('queue_options', 'Job_Name')
 Root_Output_Dir = config.get('queue_options', 'Root_Output_Dir')
@@ -342,7 +346,7 @@ else:
         if(On_ULITE):
             Log_File_Dir = Log_File_Dir_tmp
             del Log_File_Dir_tmp
-        qsub_file.write("#PBS -t 0-%s\n" %(Number_Of_Jobs-1))
+        qsub_file.write("#PBS -t 0-%s%%%s\n" %(Number_Of_Jobs-1, Max_Concurrent_Jobs))
 
         qsub_file.write("taskID=$PBS_ARRAYID\n")
         qsub_file.write("Events_Leftover=%s\n" %(Events_Leftover))
@@ -417,8 +421,8 @@ else:
         if(args.verbose): print("You have generated %s jobs with roughly %s events per job." %(Number_Of_Jobs, Number_Of_Events_Per_Job - 1))
         if(args.verbose): print("The %s jobs will be output at %s/" %(Batch_Scheduler, Local_Storage_Dir))
         if(args.verbose): print("The scripts can be run from %s" %(qshields_Script_Dir))
-        if(args.verbose and Batch_Scheduler="PBS"): print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
-        else if(args.verbose and Batch_Scheduler="SLURM"): print("You can run the jobs with :\n\t >sbatch %s/%s_%s.slurm" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
+        if(args.verbose and Batch_Scheduler=="PBS"): print("You can run the jobs with:\n\t >qsub %s/%s_%s.pbs" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
+        elif(args.verbose and Batch_Scheduler=="SLURM"): print("You can run the jobs with :\n\t >sbatch %s/%s_%s.slurm" %(Local_Script_Dir, Job_Name, qshields_Simulation_Name))
         if(args.verbose): print("*"*80)
 
 
