@@ -432,6 +432,7 @@ else:
 
     hadd_file.write("echo 'This script will now collect the partial root files into a singe file'\n")
     hadd_file.write("echo 'It may be prudent to run this script on a compute node, as this may take a while'\n")
+    hadd_file.write("echo 'Warning! This job uses a wait command. Make sure no other processes are running in the background when you run this command'\n")
 
     # loop over set number of output files at a time, adding them to a tmp file, and then repeating
 
@@ -446,15 +447,18 @@ else:
         for j in range (0, hadd_step_jobs):
             root_part = i * 100 + j
             hadd_file.write("%s/%s_%s.root " %(Root_Output_Dir, qshields_Simulation_Name, root_part))
-        hadd_file.write("& \n")
-
+            if (j == hadd_step_jobs-1):
+                hadd_file.write("& \n")
     if (hadd_last_step > 0): 
         hadd_file.write("hadd %s/tmp_%s.temp " %(qshields_Storage_Dir, hadd_full_steps))
         for l in range (0, hadd_last_step):
             root_part = hadd_full_steps * 100 + l
             hadd_file.write("%s/%s_%s.root " %(Root_Output_Dir, qshields_Simulation_Name, root_part))
+            if (l == hadd_last_step - 1):
+                hadd_file.write("& \n")
 
-    hadd_file.write("\n")
+    # Add wait command to let the hadd's finish
+    hadd_file.write("wait \n")
     hadd_file.write("hadd %s/%s.root %s/*.temp \n" %(qshields_Storage_Dir, qshields_Simulation_Name, qshields_Storage_Dir))
     hadd_file.write("rm -f %s/*.temp \n" %(qshields_Storage_Dir))
     hadd_file.write("echo 'root file collection complete' \n")
