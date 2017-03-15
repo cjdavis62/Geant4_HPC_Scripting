@@ -292,6 +292,16 @@ while True:
         if(args.verbose): print("Directory generation complete")
         break
 
+while True:
+    try:
+        os.system("ln -s %s %s/output_scratch" %(Local_Storage_Dir, Local_Script_Dir))
+        os.system("ln -s %s %s/input_script" %(Local_Script_Dir, Local_Storage_Dir))
+    except:
+        print("Error creating symlinks")
+    else:
+        if(args.verbose): print("symlink generation complete")
+        break
+
 # Copy config file to destination
 os.system("cp %s %s/." %(args.config, Config_Script_Dir))
 
