@@ -79,6 +79,24 @@ def bigCUORE():
                                                    ```.........``
 """)
 
+
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
 # Start the script off with no warnings
 warnings = False
 
@@ -208,13 +226,15 @@ if(Write_qshields):
                 f.close()
                 break
 
-    if not(os.path.exists(qshields_Location)):
+    if not which(qshields_Location):
         print("A file does not exist at location %s" %(qshields_Location))
         print("Exiting...")
         sys.exit(2)
 
+
 if(Write_g4cuore):
-    if not(os.path.exists(g4cuore_Location)):
+
+    if not which(g4cuore_Location):
         print("A file does not exist at location %s" %(g4cuore_Location))
         print("Exiting...")
         sys.exit(2)
@@ -394,13 +414,13 @@ else:
         
         slurm_file.write("#!/bin/bash\n")
         slurm_file.write("#SBATCH --job-name %s\n" %(Job_Name))
-        slurm_file.write("#SBATCH --array=1-%s\n" %(Number_Of_Jobs))
+        slurm_file.write("#SBATCH --array=0-%s%%%s\n" %(Number_Of_Jobs-1, Max_Concurrent_Jobs))
 
         slurm_file.write("#SBATCH --partition=%s\n" %(Queue))
         slurm_file.write("#SBATCH --time=%s\n" %(Walltime))
         slurm_file.write("#SBATCH --ntasks=1\n") # note: does this fix for one node? Need to test so that each only takes a single CPU!
-        slurm_file.write("#SBATCH --mail-type=%s" %(Email_From_Host))
-        slurm_file.write("#SBATCH --mail-user=%s" %(User_Email))
+        slurm_file.write("#SBATCH --mail-type=%s\n" %(Email_From_Host))
+        slurm_file.write("#SBATCH --mail-user=%s\n" %(User_Email))
 
         if(On_ULITE):
             Log_File_Dir_tmp = Log_File_Dir
