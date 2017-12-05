@@ -1,5 +1,5 @@
 Scripts for generating HPC jobs for qshields and g4cuore with addition to upload to a DB
-Runs in bash shell with python3.2 or greater.
+Runs in bash shell with python3.2 or greater. Able to run on PBS and SLURM schedulers.
 
 ### Run information ###
 Run with:
@@ -18,6 +18,3 @@ The db upload script sends the information about the scripts to the database
 ### Usage tips ###
 Run the script and the config file for making a simulation and associated g4cuore processed simulation
 Rerun the script with the copied config file when uploading to the DB. The DB is accessible from ULITE only.
-
-### Known Issues ###
-Does not work with other batch systems besides PBS for the moment
