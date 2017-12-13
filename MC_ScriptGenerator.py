@@ -526,7 +526,7 @@ else:
     # Talk to the user
     if(args.verbose): time.sleep(1)
     if(args.verbose): print("*"*80)
-    if(args.verbose): print("The g4cuore command you are generating is:\n%s" %(g4cuore_Command))
+    if(args.verbose): print("The g4cuore command you are generating is:\n%s" %(g4cuore_nolist_Command))
     if(args.verbose): print("The g4cuore command has been written to %s" %(g4cuore_Script_Dir))
     if(args.verbose): print("The g4cuore command will use the files located in %s" %(Root_Output_Dir))
     if(args.verbose): print("The output file will be written to %s/%s" %(g4cuore_Storage_Dir, g4cuore_Output_File_Name))
