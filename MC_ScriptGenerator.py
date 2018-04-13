@@ -371,7 +371,7 @@ else:
     elif (len(Qshields_Command_test) >= character_input_limit - 10):
         print ("Warning!!!\nYou are approaching the limit for the length of the input command! You have about %s characters to spare" %((character_input_limit - 1) - len(Qshields_Command_test)))
         while True:
-            OkayQuery = raw_input("Continue? [Y/N]")
+            OkayQuery = input("Continue? [Y/N]")
             if (OkayQuery == 'Y' or OkayQuery == 'y'):
                 print ("Okay, continuing at your own peril")
                 break
