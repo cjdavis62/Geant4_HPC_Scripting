@@ -314,8 +314,14 @@ while True:
 
 while True:
     try:
-        os.system("ln -s %s %s/output_scratch" %(Local_Storage_Dir, Local_Script_Dir))
-        os.system("ln -s %s %s/input_script" %(Local_Script_Dir, Local_Storage_Dir))
+        if not (os.path.islink("%s/output_scratch" %(Local_Script_Dir))):
+            os.system("ln -s %s %s/output_scratch" %(Local_Storage_Dir, Local_Script_Dir))
+        else:
+            if (args.verbose): print ("Output scratch symlink exists, continuing")
+        if not (os.path.islink("%s/input_script" %(Local_Storage_Dir))):
+            os.system("ln -s %s %s/input_script" %(Local_Script_Dir, Local_Storage_Dir))
+        else:
+            if(args.verbose): print ("Input script symlink exists, continuing")
     except:
         print("Error creating symlinks")
     else:
@@ -350,9 +356,32 @@ else:
 
     # Get random seed to start with. All jobs with have this + job_number
     Rand_Seed_Start = Random_start()
+    Rand_Seed_End = Rand_Seed_Start + Number_Of_Jobs - 1 # -1 since we start at '0'
 
     # The command to run
-    Qshields_Command ="{qshields_Location} {Source} {Source_Location} -N $Events {Other_qshields_Parameters} -o'r'{Root_Output_Dir}/{qshields_Simulation_Name}_$taskID.root -i $Random_Seed".format(qshields_Location=qshields_Location, Source=Source, Source_Location=Source_Location, Other_qshields_Parameters=Other_qshields_Parameters, Root_Output_Dir=Root_Output_Dir, qshields_Simulation_Name=qshields_Simulation_Name)
+    Qshields_Command ="$Qshields_Location $Source $Source_Location -N $Events $Other_Qshields_Parameters -o'r'${Output_Location}_${taskID}.root -i $Random_Seed"
+
+    # Check if the command is too long! If it is, the jobs will all crash and burn in pure failure
+    Qshields_Command_test = "{qshields_Location} {Source} {Source_Location} -N {Events} {Other_qshields_Parameters} -o'r'{Root_Output_Dir}/{qshields_Simulation_Name}_{Number_Of_Jobs}.root -i {Random_Seed_End}".format(qshields_Location=qshields_Location, Source=Source, Source_Location=Source_Location, Other_qshields_Parameters=Other_qshields_Parameters, Root_Output_Dir=Root_Output_Dir, qshields_Simulation_Name=qshields_Simulation_Name, Events=Number_Of_Events_Per_Job, Number_Of_Jobs=Number_Of_Jobs, Random_Seed_End=Rand_Seed_End)
+
+    character_input_limit = 273
+    if (len(Qshields_Command_test) >= character_input_limit):
+        print ("The command you are entering is too long! You need to reduce the size by at least %s characters" %(len(Qshields_Command_test) - (character_input_limit - 1)))
+        sys.exit(3)
+    elif (len(Qshields_Command_test) >= character_input_limit - 10):
+        print ("Warning!!!\nYou are approaching the limit for the length of the input command! You have about %s characters to spare" %((character_input_limit - 1) - len(Qshields_Command_test)))
+        while True:
+            OkayQuery = raw_input("Continue? [Y/N]")
+            if (OkayQuery == 'Y' or OkayQuery == 'y'):
+                print ("Okay, continuing at your own peril")
+                break
+            elif (OkayQuery == 'N' or OkayQuery == 'n'):
+                print ("Okay, exiting...")
+                sys.exit(3)
+            else:
+                print ("Please input 'Y' or 'N'")
+                
+
     if(args.verbose): time.sleep(1)
     if(args.verbose): print("The total number of events you are generating is: %s" %(Total_Number_Of_Events))
     if(args.verbose): print("The qshields command you are generating is:\n%s" %(Qshields_Command))
@@ -386,15 +415,21 @@ else:
         qsub_file.write("fi\n")
         qsub_file.write("Random_Seed=%s\n" %(Rand_Seed_Start))
         qsub_file.write("Random_Seed=$((Random_Seed + $taskID))\n")
+        qsub_file.write("OutputLocation=%s/%s\n" %(Root_Output_Dir, qshields_Simulation_Name))
+        qsub_file.write("Qshields_Location=%s\n" %(qshields_Location))
+        qsub_file.write("Source='%s'\n" %(Source))
+        qsub_file.write("Source_Location='%s'\n" %(Source_Location))
+        qsub_file.write("Other_Qshields_Parameters='%s'\n" %(Other_qshields_Parameters))
 
+        
         if(Source_Setup_File):
             qsub_file.write("source %s\n" %(MC_Setup_File))
-
 
         # Write the command to stdout
         qsub_file.write("echo %s\n" %(Qshields_Command))
         qsub_file.write("%s\n" %(Qshields_Command))
-
+        qsub_file.close()
+        
         ##### Talk to the user ######
         if(args.verbose): time.sleep(1)
         print("*"*80)
@@ -415,10 +450,9 @@ else:
         slurm_file.write("#!/bin/bash\n")
         slurm_file.write("#SBATCH --job-name %s\n" %(Job_Name))
         slurm_file.write("#SBATCH --array=0-%s%%%s\n" %(Number_Of_Jobs-1, Max_Concurrent_Jobs))
-
         slurm_file.write("#SBATCH --partition=%s\n" %(Queue))
         slurm_file.write("#SBATCH --time=%s\n" %(Walltime))
-        slurm_file.write("#SBATCH --ntasks=1\n") # note: does this fix for one node? Need to test so that each only takes a single CPU!
+        slurm_file.write("#SBATCH --ntasks=1\n")
         slurm_file.write("#SBATCH --mail-type=%s\n" %(Email_From_Host))
         slurm_file.write("#SBATCH --mail-user=%s\n" %(User_Email))
 
@@ -431,7 +465,7 @@ else:
             Log_File_Dir = Log_File_Dir_tmp
             del Log_File_Dir_tmp
 
-        slurm_file.write("taskID=$SLURM_ARRAY_TASK_ID\n") # Check which variable maps to the PBS version
+        slurm_file.write("taskID=$SLURM_ARRAY_TASK_ID\n")
         slurm_file.write("Events_Leftover=%s\n" %(Events_Leftover))
         slurm_file.write("Events=%s\n" %(Number_Of_Events_Per_Job))
         slurm_file.write("if [ \"$taskID\" -ge \"$Events_Leftover\" ]; then\n")
@@ -439,12 +473,20 @@ else:
         slurm_file.write("fi\n")
         slurm_file.write("Random_Seed=%s\n" %(Rand_Seed_Start))
         slurm_file.write("Random_Seed=$((Random_Seed + $taskID))\n")
+        slurm_file.write("Output_Location=%s/%s\n" %(Root_Output_Dir, qshields_Simulation_Name))
+        slurm_file.write("Qshields_Location=%s\n" %(qshields_Location))
+        slurm_file.write("Source='%s'\n" %(Source))
+        slurm_file.write("Source_Location='%s'\n" %(Source_Location))
+        slurm_file.write("Other_Qshields_Parameters='%s'\n" %(Other_qshields_Parameters))
 
+        Qshields_Command ="$Qshields_Location $Source $Source_Location -N $Events $Other_Qshields_Parameters -o'r'${Output_Location}_${taskID}.root -i $Random_Seed"
+
+        
         if(Source_Setup_File):
             slurm_file.write("source %s\n" %(MC_Setup_File))
 
         slurm_file.write("%s\n" %(Qshields_Command))
-
+        slurm_file.close()
         ##### Talk to the user ######
         if(args.verbose): time.sleep(1)
         print("*"*80)
@@ -493,7 +535,7 @@ else:
     hadd_file.write("rm -f %s/*.temp \n" %(qshields_Storage_Dir))
     hadd_file.write("echo 'root file collection complete' \n")
 
-
+    hadd_file.close()
 
 #### Write the g4cuore file ####
 if not (Write_g4cuore):
@@ -523,6 +565,8 @@ else:
     for i in range (0, Number_Of_Jobs):
         g4cuore_input_file_list.write("%s/%s_%s.root \n" %(Root_Output_Dir, qshields_Simulation_Name, i))
 
+    g4cuore_file_list.close()
+    g4cuore_file_nolist.close()
     # Talk to the user
     if(args.verbose): time.sleep(1)
     if(args.verbose): print("*"*80)
@@ -618,7 +662,7 @@ print(post_id)
 #print(db.collection_names(include_system_collections=False))
 print(DB_Post.find_one({"_id":post_id}))
 """)
-
+    db_file.close()
 
 # Talk to the user
     if(args.verbose): time.sleep(1)
@@ -635,3 +679,10 @@ else:
 print("*"*80)
 
 if(args.verbose) and not(args.nologo): miniCUORE()
+
+# Give the user some helpful environment variables to call in a script
+setup_file = open("setup.sh", "w")
+
+setup_file.write("GotoScript='cd %s'\n" %(qshields_Script_Dir))
+setup_file.write("GotoLog='cd %s'\n" %(Log_File_Dir))
+setup_file.close()
