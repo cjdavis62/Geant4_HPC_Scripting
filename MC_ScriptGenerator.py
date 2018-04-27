@@ -502,7 +502,7 @@ else:
 
     hadd_file = open("%s/hadd.sh" %(qshields_Script_Dir), "w")
 
-    hadd_file.write("echo 'This script will now collect the partial root files into a singe file'\n")
+    hadd_file.write("echo 'This script will now collect the partial root files into a single file'\n")
     hadd_file.write("echo 'It may be prudent to run this script on a compute node, as this may take a while'\n")
     hadd_file.write("echo 'Warning! This job uses a wait command. Make sure no other processes are running in the background when you run this command'\n")
 
